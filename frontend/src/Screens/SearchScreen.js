@@ -26,7 +26,7 @@ const SearchScreen = () => {
 		const search = (value) => {
 			const options = {
 				method: 'GET',
-				url: 'http://www.omdbapi.com/',
+				url: 'https://www.omdbapi.com/',
 				params: {
 					apikey: process.env.REACT_APP_OMDB_KEY,
 					s: value,

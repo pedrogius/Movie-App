@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import PropTypes from 'prop-types';
 import axios from 'axios';
 import { Skeleton, Row, Col, Card, Table } from 'antd';
-import CountryContext from '../Context';
+import { CountryContext } from '../Context/CountryContext';
 
 const SeriesScreen = ({ match }) => {
 	const [data, setData] = useState(null);
@@ -10,7 +10,7 @@ const SeriesScreen = ({ match }) => {
 	const { id, type } = match.params;
 	const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
 
-	const country = useContext(CountryContext);
+	const { country } = useContext(CountryContext);
 
 	useEffect(() => {
 		const fetchData = async (id) => {
@@ -59,7 +59,7 @@ const SeriesScreen = ({ match }) => {
 			}
 		};
 		fetchData(id);
-	}, [id, type]);
+	}, [id, type, country]);
 
 	const columns = [
 		{

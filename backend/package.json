@@ -1,0 +1,24 @@
+{
+	"name": "backend",
+	"version": "1.0.0",
+	"description": "",
+	"main": "server.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"start": "node backend/server",
+		"server": "nodemon backend/server",
+		"client": "npm start --prefix ../frontend",
+		"dev": "concurrently \"npm run server\" \"npm run client\""
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"dependencies": {
+		"concurrently": "^6.2.1",
+		"cors": "^2.8.5",
+		"express": "^4.17.1",
+		"geoip-country": "^4.0.85",
+		"nodemon": "^2.0.12",
+		"request-ip": "^2.1.3"
+	}
+}
