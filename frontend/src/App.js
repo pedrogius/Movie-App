@@ -6,9 +6,12 @@ import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import SideMenu from './Components/SideMenu';
 import SearchScreen from './Screens/SearchScreen';
 import SeriesScreen from './Screens/SeriesScreen';
+import RegisterScreen from './Screens/RegisterScreen';
+import DashboardScreen from './Screens/DashboardScreen';
 import { AuthProvider } from './Context/AuthContext';
 import { CountryProvider } from './Context/CountryContext';
 import LoginScreen from './Screens/LoginScreen';
+import ResetPasswordScreen from './Screens/ResetPasswordScreen';
 
 const { Content, Footer } = Layout;
 
@@ -25,6 +28,9 @@ function App() {
 								<Switch>
 									<Route path="/" component={SearchScreen} exact />
 									<Route path="/login" component={LoginScreen} exact />
+									<Route path="/register" component={RegisterScreen} exact />
+									<Route path="/dashboard" component={DashboardScreen} exact />
+									<Route path="/reset" component={ResetPasswordScreen} exact />
 									<Route path="/:type/:id" component={SeriesScreen} exact />
 								</Switch>
 							</Content>

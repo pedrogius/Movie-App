@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { Form, Button, Input } from 'antd';
 import { Link, useHistory } from 'react-router-dom';
-import { signIn, signInWithGoogle } from '../Firebase';
+import { register, signInWithGoogle } from '../Firebase';
 import { AuthContext } from '../Context/AuthContext';
 
-function LoginScreen() {
+const RegisterScreen = () => {
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
 	const history = useHistory();
@@ -17,6 +17,10 @@ function LoginScreen() {
 
 	const onFinishFailed = (errorInfo) => {
 		console.log('Failed:', errorInfo);
+	};
+
+	const signUp = () => {
+		register(email, password);
 	};
 
 	return (
@@ -32,17 +36,17 @@ function LoginScreen() {
 				initialValues={{
 					remember: true,
 				}}
-				onFinish={signIn}
+				onFinish={signUp}
 				onFinishFailed={onFinishFailed}
 				autoComplete="off"
 			>
 				<Form.Item
-					label="Username"
-					name="username"
+					label="Email"
+					name="email"
 					rules={[
 						{
 							required: true,
-							message: 'Please input your username!',
+							message: 'Please input your email!',
 						},
 					]}
 				>
@@ -58,8 +62,34 @@ function LoginScreen() {
 							message: 'Please input your password!',
 						},
 					]}
+					hasFeedback
 				>
 					<Input.Password value={password} onChange={(e) => setPassword(e.target.value)} />
+				</Form.Item>
+				<Form.Item
+					name="confirm"
+					label="Confirm Password"
+					dependencies={['password']}
+					hasFeedback
+					rules={[
+						{
+							required: true,
+							message: 'Please confirm your password!',
+						},
+						({ getFieldValue }) => ({
+							validator(_, value) {
+								if (!value || getFieldValue('password') === value) {
+									return Promise.resolve();
+								}
+
+								return Promise.reject(
+									new Error('The two passwords that you entered do not match!')
+								);
+							},
+						}),
+					]}
+				>
+					<Input.Password />
 				</Form.Item>
 
 				<Form.Item
@@ -69,19 +99,16 @@ function LoginScreen() {
 					}}
 				>
 					<Button type="primary" htmlType="submit">
-						Login
+						Sign Up
 					</Button>
 				</Form.Item>
 			</Form>
 			<Button onClick={signInWithGoogle}>Login with Google</Button>
 			<div>
-				<Link to="/reset">Forgot Password</Link>
-			</div>
-			<div>
-				Don't have an account? <Link to="/register">Register</Link> now.
+				Already have an account? <Link to="/login">Login</Link> now.
 			</div>
 		</>
 	);
-}
+};
 
-export default LoginScreen;
+export default RegisterScreen;

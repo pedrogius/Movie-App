@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useContext } from 'react';
 import PropTypes from 'prop-types';
-import axios from 'axios';
 import { Skeleton, Row, Col, Card, Table } from 'antd';
 import { CountryContext } from '../Context/CountryContext';
+import { fetchFromDB } from '../Firebase';
 
 const SeriesScreen = ({ match }) => {
 	const [data, setData] = useState(null);
@@ -14,17 +14,8 @@ const SeriesScreen = ({ match }) => {
 
 	useEffect(() => {
 		const fetchData = async (id) => {
-			const options = {
-				method: 'GET',
-				url: 'https://streaming-availability.p.rapidapi.com/get/basic',
-				params: { country, imdb_id: id },
-				headers: {
-					'x-rapidapi-host': 'streaming-availability.p.rapidapi.com',
-					'x-rapidapi-key': process.env.REACT_APP_RAPIDAPI_KEY,
-				},
-			};
 			try {
-				const { data } = await axios.request(options);
+				const data = await fetchFromDB(id, type, country);
 				const parsedData = [
 					{
 						key: 1,
@@ -52,8 +43,8 @@ const SeriesScreen = ({ match }) => {
 						value: capitalize(Object.keys(data.streamingInfo).toString()) || 'Not Available',
 					},
 				];
-				setTableData(parsedData);
 				setData(data);
+				setTableData(parsedData);
 			} catch (e) {
 				console.log(e);
 			}
@@ -88,7 +79,7 @@ const SeriesScreen = ({ match }) => {
 						<Col span={14}>
 							<h1>
 								{data.originalTitle} (
-								{type === 'movie' ? data.year : `${data.firstAirYear} - ${data.lastAirYear}`})
+								{type === 'movie' ? data.year : `${data.year} - ${data.lastAirYear}`})
 							</h1>
 							<Table
 								columns={columns}

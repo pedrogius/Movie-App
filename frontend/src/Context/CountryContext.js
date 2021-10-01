@@ -21,5 +21,7 @@ export const CountryProvider = ({ children }) => {
 	useEffect(() => {
 		getCountry();
 	}, [country]);
-	return <CountryContext.Provider value={{ country }}>{children}</CountryContext.Provider>;
+	return (
+		<CountryContext.Provider value={{ country, setCountry }}>{children}</CountryContext.Provider>
+	);
 };

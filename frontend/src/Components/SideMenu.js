@@ -75,13 +75,12 @@ const SideMenu = () => {
 					<Menu.Item
 						key="2"
 						icon={
-							<Link to="/login">
+							<Link to={user ? '/dashboard' : '/login'}>
 								<LoginOutlined />
 							</Link>
 						}
 					>
 						{user ? 'My Account' : 'Login'}
-						{console.log(user)}
 					</Menu.Item>
 					<Menu.Item key="3" icon={<FireOutlined />}>
 						Recommended
