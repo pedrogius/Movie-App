@@ -1,16 +1,18 @@
 import React, { useState, useEffect, useContext } from 'react';
 import PropTypes from 'prop-types';
-import { Skeleton, Row, Col, Card, Table } from 'antd';
+import { Skeleton, Row, Col, Card, Table, Button } from 'antd';
 import { CountryContext } from '../Context/CountryContext';
-import { fetchFromDB } from '../Firebase';
+import { AuthContext } from '../Context/AuthContext';
+import { fetchFromDB, addToRecommended, checkRecommended } from '../Firebase';
 
 const SeriesScreen = ({ match }) => {
 	const [data, setData] = useState(null);
 	const [tableData, setTableData] = useState(null);
+	const [isRecommended, setIsRecommended] = useState(false);
 	const { id, type } = match.params;
-	const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
 
 	const { country } = useContext(CountryContext);
+	const { isAdmin } = useContext(AuthContext);
 
 	useEffect(() => {
 		const fetchData = async (id) => {
@@ -40,7 +42,6 @@ const SeriesScreen = ({ match }) => {
 					{
 						key: 5,
 						property: 'Streaming Availability',
-						value: capitalize(Object.keys(data.streamingInfo).toString()) || 'Not Available',
 					},
 				];
 				setData(data);
@@ -51,6 +52,16 @@ const SeriesScreen = ({ match }) => {
 		};
 		fetchData(id);
 	}, [id, type, country]);
+
+	useEffect(() => {
+		if (isAdmin) {
+			const func = async () => {
+				const res = await checkRecommended(id);
+				setIsRecommended(res);
+			};
+			func();
+		}
+	}, [isAdmin, id]);
 
 	const columns = [
 		{
@@ -63,6 +74,15 @@ const SeriesScreen = ({ match }) => {
 			key: 'value',
 		},
 	];
+
+	const handleRemoveRecommended = async () => {
+		setIsRecommended(false);
+	};
+
+	const handleAddToRecommended = async () => {
+		await addToRecommended(id, type);
+		setIsRecommended(true);
+	};
 
 	return (
 		<div className="site-layout-content">
@@ -96,6 +116,16 @@ const SeriesScreen = ({ match }) => {
 							>
 								<p>{data.imdbRating}</p>
 							</Card>
+							{isAdmin &&
+								(isRecommended ? (
+									<Button type="danger" onClick={handleRemoveRecommended}>
+										Remove from recommended
+									</Button>
+								) : (
+									<Button type="primary" onClick={handleAddToRecommended}>
+										Add to recommended
+									</Button>
+								))}
 						</Col>
 					</Row>
 				</div>

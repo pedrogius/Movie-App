@@ -8,7 +8,18 @@ import {
 	sendPasswordResetEmail,
 	signOut,
 } from 'firebase/auth';
-import { getFirestore, doc, getDoc, setDoc, updateDoc, Timestamp } from 'firebase/firestore/lite';
+import {
+	getFirestore,
+	doc,
+	getDoc,
+	getDocs,
+	setDoc,
+	updateDoc,
+	Timestamp,
+	collection,
+	query,
+	where,
+} from 'firebase/firestore/lite';
 import { isEmpty } from './Utils';
 import { merge } from 'lodash';
 import axios from 'axios';
@@ -104,6 +115,12 @@ const logout = () => {
 	signOut(auth);
 };
 
+const getUser = async (uid) => {
+	const docRef = doc(db, 'users', uid);
+	const docSnap = await getDoc(docRef);
+	return docSnap;
+};
+
 const fetchFromDB = async (id, type, country) => {
 	const dbName = type === 'movie' ? 'movies' : 'series';
 	const docRef = doc(db, dbName, id);
@@ -165,4 +182,49 @@ const fetchFromDB = async (id, type, country) => {
 		return data;
 	}
 };
-export { auth, db, signInWithGoogle, signIn, register, resetPassword, logout, fetchFromDB };
+
+const fetchRecommended = async (type) => {
+	const dbName = type === 'movie' ? 'movies' : 'series';
+	const ref = collection(db, dbName);
+	const q = query(ref, where('isRecommended', '==', true));
+	const querySnapshot = await getDocs(q);
+	const arr = [];
+	querySnapshot.forEach((doc) => {
+		const data = doc.data();
+		arr.push({ title: data.originalTitle, id: data.imdbID });
+	});
+	return arr;
+};
+
+const addToRecommended = async (id, type, bool) => {
+	const dbName = type === 'movie' ? 'movies' : 'series';
+	const docRef = doc(db, dbName, id);
+	await updateDoc(docRef, {
+		isRecommended: bool,
+	});
+};
+
+const checkRecommended = async (id, type) => {
+	const dbName = type === 'movie' ? 'movies' : 'series';
+	const docRef = doc(db, dbName, id);
+	const docSnap = await getDoc(docRef);
+	if (docSnap.data().isRecommended) {
+		return true;
+	} else {
+		return false;
+	}
+};
+export {
+	auth,
+	db,
+	signInWithGoogle,
+	signIn,
+	register,
+	resetPassword,
+	logout,
+	getUser,
+	fetchFromDB,
+	addToRecommended,
+	checkRecommended,
+	fetchRecommended,
+};

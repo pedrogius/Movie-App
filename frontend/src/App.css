@@ -9,3 +9,54 @@
 .ant-menu-item {
 	margin: 20px 0 !important;
 }
+
+.colored-col-1 {
+	background-color: red;
+}
+.colored-col-2 {
+	background-color: green;
+}
+.colored-col-3 {
+	background-color: blue;
+}
+.colored-col-4 {
+	background-color: teal;
+}
+
+.main-row {
+	height: 450px;
+}
+
+.top-inner-row {
+	height: 50px;
+}
+
+.inner-row {
+	height: 350px;
+}
+
+.poster {
+	max-width: 100%;
+}
+
+.ant-tabs-nav {
+	width: 100% !important;
+}
+
+.ant-tabs-tab {
+	display: block;
+	flex: 1;
+	text-align: center !important;
+}
+
+.ant-tabs-nav > div:nth-of-type(1) {
+	display: unset !important;
+	width: 100% !important;
+	text-align: center !important;
+}
+
+.recommended {
+	border: 1px solid grey;
+	border-radius: 2px;
+	padding: 18px;
+}

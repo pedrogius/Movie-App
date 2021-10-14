@@ -3,5 +3,6 @@
 	"editor.detectIndentation": false,
 	"editor.tabSize": 2,
 	"editor.insertSpaces": false,
-	"git.ignoreLimitWarning": true
+	"git.ignoreLimitWarning": true,
+	"editor.codeActionsOnSave": null
 }
