@@ -121,6 +121,23 @@ const getUser = async (uid) => {
 	return docSnap;
 };
 
+const fetchTomatoMeter = async (q, type, year) => {
+	const dbName = type === 'series' ? 'tvSeries' : 'movies';
+	const queryYear = type === 'series' ? 'startYear' : 'year';
+	const options = {
+		method: 'GET',
+		url: 'https://www.rottentomatoes.com/api/private/v2.0/search/',
+		params: { q, limit: 3 },
+	};
+	const { data } = await axios.request(options);
+	if (data[dbName].length) {
+		const item = data[dbName].filter((x) => x[queryYear] === year);
+		return item[0].meterScore || 0;
+	} else {
+		return 0;
+	}
+};
+
 const fetchFromDB = async (id, type, country) => {
 	const dbName = type === 'movie' ? 'movies' : 'series';
 	const docRef = doc(db, dbName, id);
@@ -153,10 +170,13 @@ const fetchFromDB = async (id, type, country) => {
 			if (countries.includes(ctry.toLowerCase())) {
 				//checks if document has streaming information
 				//on query country and last update was less than a week ago
+				// if its an original (owned by streaming service) it will be 180 days instead of a week
 				const week = 1000 * 60 * 60 * 24 * 7;
+				const halfYear = 1000 * 60 * 60 * 24 * 180;
+				const { isOriginal } = docSnap.data();
 				const queryDate = docSnap.data().lastQuery[ctry].toMillis();
-				const isExpired = Date.now() - queryDate > week;
-				return isExpired ? false : true;
+				const isExpired = Date.now() - queryDate < isOriginal ? halfYear : week;
+				return isExpired;
 			} else {
 				return false;
 			}
@@ -176,6 +196,8 @@ const fetchFromDB = async (id, type, country) => {
 		}
 	} else {
 		const { data } = await axios.request(options);
+		const tomatoScore = await fetchTomatoMeter(data.title, type, data.year);
+		data.tomatoMeter = tomatoScore;
 		data.lastQuery = { [country]: Timestamp.now() };
 		data.isOriginal = false;
 		await setDoc(docRef, data);
@@ -191,7 +213,7 @@ const fetchRecommended = async (type) => {
 	const arr = [];
 	querySnapshot.forEach((doc) => {
 		const data = doc.data();
-		arr.push({ title: data.originalTitle, id: data.imdbID });
+		arr.push({ title: data.title, id: data.imdbID });
 	});
 	return arr;
 };
@@ -204,16 +226,27 @@ const addToRecommended = async (id, type, bool) => {
 	});
 };
 
+const makeOriginal = async (id, type, bool) => {
+	const dbName = type === 'movie' ? 'movies' : 'series';
+	const docRef = doc(db, dbName, id);
+	await updateDoc(docRef, {
+		isOriginal: bool,
+	});
+};
+
 const checkRecommended = async (id, type) => {
 	const dbName = type === 'movie' ? 'movies' : 'series';
 	const docRef = doc(db, dbName, id);
 	const docSnap = await getDoc(docRef);
-	if (docSnap.data().isRecommended) {
-		return true;
-	} else {
-		return false;
+	if (docSnap.exists()) {
+		return {
+			recommended: docSnap.data().isRecommended,
+			original: docSnap.data().isOriginal,
+		};
 	}
+	return;
 };
+
 export {
 	auth,
 	db,
@@ -227,4 +260,6 @@ export {
 	addToRecommended,
 	checkRecommended,
 	fetchRecommended,
+	makeOriginal,
+	fetchTomatoMeter,
 };

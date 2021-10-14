@@ -1,17 +1,26 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import { Skeleton, Row, Col, Tabs, Button, Image, Divider, Tag, List } from 'antd';
+import { Skeleton, Row, Col, Tabs, Button, Image, Divider, Tag, List, Spin } from 'antd';
 import { CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
 import { CountryContext } from '../Context/CountryContext';
 import { AuthContext } from '../Context/AuthContext';
-import { fetchFromDB, addToRecommended, checkRecommended, fetchRecommended } from '../Firebase';
+import {
+	fetchFromDB,
+	addToRecommended,
+	checkRecommended,
+	fetchRecommended,
+	makeOriginal,
+	fetchTomatoMeter,
+} from '../Firebase';
 import { minutesToHoursAndMinutes, makeString, capitalize, isEmpty } from '../Utils';
 
 const ResultScreen = ({ match }) => {
 	const [data, setData] = useState(null);
 	const [isRecommended, setIsRecommended] = useState(false);
+	const [isOriginal, setIsOriginal] = useState(false);
 	const [recommendedList, setRecommendedList] = useState(null);
+	const [isLoading, setIsLoading] = useState(true);
 	const { id, type } = match.params;
 	const [recommendedType, setRecommendedType] = useState(type);
 
@@ -21,8 +30,10 @@ const ResultScreen = ({ match }) => {
 
 	useEffect(() => {
 		const fetchAsync = async () => {
+			setIsLoading(true);
 			const res = await fetchRecommended(recommendedType);
 			setRecommendedList(res);
+			setIsLoading(false);
 		};
 		fetchAsync();
 	}, [recommendedType, isRecommended]);
@@ -43,7 +54,10 @@ const ResultScreen = ({ match }) => {
 		if (isAdmin) {
 			const func = async () => {
 				const res = await checkRecommended(id, type);
-				setIsRecommended(res);
+				if (res) {
+					setIsRecommended(res.recommended);
+					setIsOriginal(res.original);
+				}
 			};
 			func();
 		}
@@ -52,6 +66,16 @@ const ResultScreen = ({ match }) => {
 	const handleAddToRecommended = async () => {
 		await addToRecommended(id, type, !isRecommended);
 		setIsRecommended(!isRecommended);
+	};
+
+	const handleMakeOriginal = async () => {
+		await makeOriginal(id, type, !isOriginal);
+		setIsOriginal(!isOriginal);
+	};
+
+	const handleTomatoScore = async () => {
+		const score = await fetchTomatoMeter(data.title, type, data.year);
+		console.log(score);
 	};
 
 	const isAvailable = (obj) => {
@@ -74,12 +98,15 @@ const ResultScreen = ({ match }) => {
 						<Row className="top-inner-row">
 							<Col span={24}>
 								<h1 style={{ marginBottom: '0px' }}>
-									{data.originalTitle} ({data.year}
-									{data.lastAirYear && ` - ${data.lastAirYear}`})
+									{data.title} ({data.year}
+									{data.lastAirYear && data.year !== data.lastAirYear && ` - ${data.lastAirYear}`})
 								</h1>
 								<p>
-									{data.seasons && `${data.seasons} seasons - ${data.episodes} episodes - `}
-									{minutesToHoursAndMinutes(data.runtime || data.episodeRuntimes)}
+									{data.seasons &&
+										`${data.seasons} ${data.seasons > 1 ? 'seasons' : 'season'} - ${
+											data.episodes
+										} episodes - `}
+									{minutesToHoursAndMinutes(data.runtime || data.episodeRuntimes[0])}
 								</p>
 							</Col>
 						</Row>
@@ -117,9 +144,13 @@ const ResultScreen = ({ match }) => {
 								{isAdmin && (
 									<>
 										<Divider />
-										<Button onClick={handleAddToRecommended}>
+										<Button onClick={handleAddToRecommended} style={{ marginRight: '10px' }}>
 											{isRecommended ? 'Remove from Recommended' : 'Add to Recommended'}
 										</Button>
+										<Button onClick={handleMakeOriginal}>
+											{isOriginal ? 'Remove from Originals' : 'Add to Originals'}
+										</Button>
+										<Button onClick={handleTomatoScore}>Fetch TomatoMeter</Button>
 									</>
 								)}
 							</Col>
@@ -128,36 +159,51 @@ const ResultScreen = ({ match }) => {
 					<Col span={6}>
 						<h2>What to Watch</h2>
 						<div className="recommended">
-							<Tabs
-								defaultActiveKey={recommendedType}
-								centered
-								tabBarStyle={{ width: '100%', textAlign: 'center' }}
-								onChange={(activeKey) => setRecommendedType(activeKey)}
-							>
-								{console.log(recommendedList)}
-								<TabPane tab="Movies" key="movie">
-									<List
-										dataSource={recommendedList}
-										footer={<div>View All</div>}
-										renderItem={(item) => (
-											<Link to={`/movie/${item.id}`}>
-												<List.Item>{item.title}</List.Item>
-											</Link>
+							{recommendedList ? (
+								<Tabs
+									defaultActiveKey={recommendedType}
+									centered
+									tabBarStyle={{ width: '100%', textAlign: 'center' }}
+									onChange={(activeKey) => setRecommendedType(activeKey)}
+								>
+									<TabPane tab="Movies" key="movie">
+										{isLoading ? (
+											<div className="centered-spinner">
+												<Spin />
+											</div>
+										) : (
+											<List
+												dataSource={recommendedList}
+												footer={<div>View All</div>}
+												renderItem={(item) => (
+													<Link to={`/movie/${item.id}`}>
+														<List.Item>{item.title}</List.Item>
+													</Link>
+												)}
+											/>
 										)}
-									/>
-								</TabPane>
-								<TabPane tab="Series" key="series">
-									<List
-										dataSource={recommendedList}
-										footer={<div>View All</div>}
-										renderItem={(item) => (
-											<Link to={`/series/${item.id}`}>
-												<List.Item>{item.title}</List.Item>
-											</Link>
+									</TabPane>
+									<TabPane tab="Series" key="series">
+										{isLoading ? (
+											<div className="centered-spinner">
+												<Spin />
+											</div>
+										) : (
+											<List
+												dataSource={recommendedList}
+												footer={<div>View All</div>}
+												renderItem={(item) => (
+													<Link to={`/series/${item.id}`}>
+														<List.Item>{item.title}</List.Item>
+													</Link>
+												)}
+											/>
 										)}
-									/>
-								</TabPane>
-							</Tabs>
+									</TabPane>
+								</Tabs>
+							) : (
+								<Spin />
+							)}
 						</div>
 					</Col>
 				</Row>
