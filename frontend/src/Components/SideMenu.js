@@ -1,13 +1,13 @@
 import React, { useState, useContext } from 'react';
-import { Layout, Menu, Modal, Select } from 'antd';
+import { Layout, Menu, Modal, Select, Affix } from 'antd';
 import {
-	SearchOutlined,
 	LoginOutlined,
 	FireOutlined,
 	GlobalOutlined,
 	StarOutlined,
 	EyeOutlined,
 	InfoCircleOutlined,
+	HomeOutlined,
 } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
 import { CountryContext } from '../Context/CountryContext';
@@ -19,10 +19,11 @@ const { Option } = Select;
 const SideMenu = () => {
 	const [isModalVisible, setIsModalVisible] = useState(false);
 	const [collapsed, setCollapsed] = useState(true);
-	const [modalCountry, setModalCountry] = useState(null);
 
 	const { country, setCountry } = useContext(CountryContext);
 	const { user } = useContext(AuthContext);
+
+	const [modalCountry, setModalCountry] = useState(country);
 
 	const showModal = () => {
 		setIsModalVisible(true);
@@ -42,34 +43,34 @@ const SideMenu = () => {
 		setCollapsed(collapsed);
 	};
 	return (
-		<>
-			<Modal
-				title="Choose Country"
-				visible={isModalVisible}
-				onOk={handleOk}
-				onCancel={handleCancel}
-			>
-				<p>Choose Country</p>
-				<Select
-					defaultValue={country}
-					style={{ width: 120 }}
-					onChange={(value) => setModalCountry(value)}
-				>
-					<Option value="AR">Argentina</Option>
-					<Option value="US">United States</Option>
-				</Select>
-			</Modal>
+		<Affix>
 			<Sider collapsible collapsed={collapsed} onCollapse={onCollapse}>
+				<Modal
+					title="Choose Country"
+					visible={isModalVisible}
+					onOk={handleOk}
+					onCancel={handleCancel}
+				>
+					<p>Choose Country</p>
+					<Select
+						defaultValue={country}
+						style={{ width: 120 }}
+						onChange={(value) => setModalCountry(value)}
+					>
+						<Option value="AR">Argentina</Option>
+						<Option value="US">United States</Option>
+					</Select>
+				</Modal>
 				<Menu theme="dark">
 					<Menu.Item
 						key="1"
 						icon={
 							<Link to="/">
-								<SearchOutlined />
+								<HomeOutlined />
 							</Link>
 						}
 					>
-						Search
+						Home
 					</Menu.Item>
 
 					<Menu.Item
@@ -99,7 +100,7 @@ const SideMenu = () => {
 					</Menu.Item>
 				</Menu>
 			</Sider>
-		</>
+		</Affix>
 	);
 };
 

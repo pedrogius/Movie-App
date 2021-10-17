@@ -19,7 +19,10 @@ export const CountryProvider = ({ children }) => {
 	};
 
 	useEffect(() => {
-		getCountry();
+		const func = async () => {
+			await getCountry();
+		};
+		func();
 	}, [country]);
 	return (
 		<CountryContext.Provider value={{ country, setCountry }}>{children}</CountryContext.Provider>

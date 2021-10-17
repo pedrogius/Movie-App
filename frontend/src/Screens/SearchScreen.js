@@ -1,27 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Input, Col, Row, Spin, Select, Card } from 'antd';
-import { Link } from 'react-router-dom';
-
-const { Search } = Input;
-const { Option } = Select;
+import { Col, Row, Spin, Card } from 'antd';
+import { Link, useRouteMatch } from 'react-router-dom';
 
 const SearchScreen = () => {
-	const [query, setQuery] = useState('');
 	const [results, setResults] = useState([]);
 	const [isLoading, setIsLoading] = useState(false);
 	const [type, setType] = useState('movie');
+	const [query, setQuery] = useState('');
 
-	const handleSubmit = (q) => {
-		setResults([]);
-		setQuery(q);
-	};
-
-	const handleSelect = (value) => {
-		setType(value);
-	};
+	const match = useRouteMatch('/search/:searchType/:searchTerm');
 
 	useEffect(() => {
+		if (match) {
+			const { searchTerm, searchType } = match.params;
+			setType(searchType);
+			setQuery(searchTerm);
+		}
+	}, [match]);
+
+	useEffect(() => {
+		setResults([]);
 		let mounted = true;
 		const search = (value) => {
 			const options = {
@@ -38,8 +37,11 @@ const SearchScreen = () => {
 				.request(options)
 				.then((response) => {
 					if (mounted) {
-						setResults(response.data.Search);
-						console.log(response.data.Search);
+						const data = response.data.Search;
+						const uniqueResults = Array.from(new Set(data.map((a) => a.imdbID))).map((id) => {
+							return data.find((a) => a.imdbID === id);
+						});
+						setResults(uniqueResults);
 						setIsLoading(false);
 					}
 				})
@@ -55,27 +57,15 @@ const SearchScreen = () => {
 	}, [query, type]);
 	return (
 		<div className="site-layout-content">
-			<div style={{ display: 'flex', alignItems: 'end' }}>
-				<Select defaultValue="movie" onChange={handleSelect} style={{ marginRight: '10px' }}>
-					<Option value="movie">Movies</Option>
-					<Option value="series">Series</Option>
-				</Select>
-				<Search
-					autoFocus
-					placeholder="input search text"
-					onSearch={(q) => handleSubmit(q)}
-					enterButton
-				/>
-			</div>
 			{isLoading && <Spin size="large" />}
 			<Row gutter={[24, 24]}>
 				{results &&
 					results.map((result) => (
-						<Col className="row-gutter" span={{ sm: 24, md: 12, lg: 8 }} key={result.imdbID}>
+						<Col span={{ sm: 24, md: 12, lg: 8 }} key={result.imdbID}>
 							<Link to={`/${type}/${result.imdbID}`}>
 								<Card
 									hoverable
-									style={{ width: '100%' }}
+									style={{ width: '90%' }}
 									cover={<img src={result.Poster} alt={result.Title} />}
 								>
 									{result.Title} ({result.Year})

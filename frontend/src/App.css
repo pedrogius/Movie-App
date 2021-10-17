@@ -2,25 +2,8 @@
 	padding: 0 25px;
 }
 
-.ant-input-search {
-	margin-bottom: 1em;
-}
-
 .ant-menu-item {
 	margin: 20px 0 !important;
-}
-
-.colored-col-1 {
-	background-color: red;
-}
-.colored-col-2 {
-	background-color: green;
-}
-.colored-col-3 {
-	background-color: blue;
-}
-.colored-col-4 {
-	background-color: teal;
 }
 
 .main-row {
@@ -65,4 +48,18 @@
 	display: flex;
 	justify-content: center;
 	align-items: center;
+}
+
+.space-align-container {
+	display: flex;
+	align-items: center;
+	height: 70px;
+}
+
+.ant-menu-item-selected {
+	background-color: inherit !important;
+}
+
+.ant-layout-header {
+	padding-left: 0 !important;
 }
