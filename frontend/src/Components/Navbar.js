@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Image, Layout, Affix, Select } from 'antd';
-import { useHistory, withRouter, useRouteMatch, Link } from 'react-router-dom';
+import { useHistory, withRouter, useRouteMatch } from 'react-router-dom';
 import Autosuggest from 'react-autosuggest';
 import { useDebounce } from 'use-debounce';
 import { fetchSuggestions } from '../Firebase';
@@ -16,13 +16,14 @@ const Navbar = () => {
 	const [type, setType] = useState(match ? match.params.searchType : 'movie');
 	const [value, setValue] = useState(match ? match.params.searchTerm : '');
 	const [suggestions, setSuggestions] = useState([]);
+	const [hasTyped, setHasTyped] = useState(false);
 
 	const [debouncedValue] = useDebounce(value, 500);
 
 	useEffect(() => {
 		let mounted = true;
 		const func = async () => {
-			if (debouncedValue.length > 2) {
+			if (debouncedValue.length > 2 && hasTyped) {
 				const res = await fetchSuggestions(capitalize(debouncedValue), type);
 				if (mounted) {
 					setSuggestions(res);
@@ -33,7 +34,7 @@ const Navbar = () => {
 		return () => {
 			mounted = false;
 		};
-	}, [debouncedValue, type]);
+	}, [debouncedValue, type, hasTyped]);
 
 	const handleSelect = (x) => {
 		setType(x);
@@ -81,13 +82,27 @@ const Navbar = () => {
 							</div>
 						)}
 						inputProps={{
-							type: 'search',
 							placeholder: 'search by name',
 							value: value,
 							onChange: (_, { newValue, method }) => {
+								if (method === 'type') {
+									setHasTyped(true);
+								} else if (method === 'up' || 'down') {
+									setHasTyped(false);
+								}
 								setValue(newValue);
 							},
 						}}
+						renderInputComponent={(inputProps) => (
+							<form
+								onSubmit={(e) => {
+									e.preventDefault();
+									history.push(`/search/${type}/${value}`);
+								}}
+							>
+								<input {...inputProps} />
+							</form>
+						)}
 						alwaysRenderSuggestions={false}
 						focusInputOnSuggestionClick={false}
 					/>

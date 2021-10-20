@@ -72,11 +72,9 @@ const ResultScreen = () => {
 			for (let stream in obj) {
 				if (Object.keys(obj[stream]).includes(country.toLowerCase())) {
 					results.push(stream);
-				} else {
-					return;
 				}
 			}
-			return results;
+			return results.length ? results : undefined;
 		}
 	};
 
@@ -119,6 +117,7 @@ const ResultScreen = () => {
 								<Divider />
 								<p>
 									<strong style={{ marginRight: '12px' }}>Streaming</strong>
+									{console.log(isAvailable(data.streamingInfo))}
 									{isAvailable(data.streamingInfo) ? (
 										isAvailable(data.streamingInfo).map((stream) => (
 											<Tag key={stream} color="success" icon={<CheckCircleOutlined />}>
