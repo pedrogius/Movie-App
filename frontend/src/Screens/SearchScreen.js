@@ -2,11 +2,12 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Col, Row, Spin, Card } from 'antd';
 import { Link, useRouteMatch } from 'react-router-dom';
+import Recommended from '../Components/Recommended';
 
 const SearchScreen = () => {
 	const [results, setResults] = useState([]);
 	const [isLoading, setIsLoading] = useState(false);
-	const [type, setType] = useState('movie');
+	const [type, setType] = useState(null);
 	const [query, setQuery] = useState('');
 
 	const match = useRouteMatch('/search/:searchType/:searchTerm');
@@ -59,20 +60,25 @@ const SearchScreen = () => {
 		<div className="site-layout-content">
 			{isLoading && <Spin size="large" />}
 			<Row gutter={[24, 24]}>
-				{results &&
-					results.map((result) => (
-						<Col span={{ sm: 24, md: 12, lg: 8 }} key={result.imdbID}>
-							<Link to={`/${type}/${result.imdbID}`}>
-								<Card
-									hoverable
-									style={{ width: '90%' }}
-									cover={<img src={result.Poster} alt={result.Title} />}
-								>
-									{result.Title} ({result.Year})
-								</Card>
-							</Link>
-						</Col>
-					))}
+				<Col span={18}>
+					{results &&
+						results.map((result) => (
+							<Col span={{ sm: 24, md: 12, lg: 8 }} key={result.imdbID}>
+								<Link to={`/${type}/${result.imdbID}`}>
+									<Card
+										hoverable
+										style={{ width: '90%' }}
+										cover={<img src={result.Poster} alt={result.Title} />}
+									>
+										{result.Title} ({result.Year})
+									</Card>
+								</Link>
+							</Col>
+						))}
+				</Col>
+				<Col span={6}>
+					<Recommended type={type} />
+				</Col>
 			</Row>
 		</div>
 	);

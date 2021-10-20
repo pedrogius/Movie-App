@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Link } from 'react-router-dom';
+import { useRouteMatch } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import { Skeleton, Row, Col, Tabs, Button, Image, Divider, Tag, List, Spin } from 'antd';
+import { Skeleton, Row, Col, Button, Image, Divider, Tag } from 'antd';
 import { CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
 import { CountryContext } from '../Context/CountryContext';
 import { AuthContext } from '../Context/AuthContext';
@@ -9,34 +9,22 @@ import {
 	fetchFromDB,
 	addToRecommended,
 	checkRecommended,
-	fetchRecommended,
 	makeOriginal,
 	fetchTomatoMeter,
 } from '../Firebase';
 import { minutesToHoursAndMinutes, makeString, capitalize, isEmpty } from '../Utils';
+import Recommended from '../Components/Recommended';
 
-const ResultScreen = ({ match }) => {
+const ResultScreen = () => {
+	const match = useRouteMatch('/:type/:id');
+
 	const [data, setData] = useState(null);
 	const [isRecommended, setIsRecommended] = useState(false);
 	const [isOriginal, setIsOriginal] = useState(false);
-	const [recommendedList, setRecommendedList] = useState(null);
-	const [isLoading, setIsLoading] = useState(true);
-	const { id, type } = match.params;
-	const [recommendedType, setRecommendedType] = useState(type);
+	const { type, id } = match.params;
 
 	const { country } = useContext(CountryContext);
 	const { isAdmin } = useContext(AuthContext);
-	const { TabPane } = Tabs;
-
-	useEffect(() => {
-		const fetchAsync = async () => {
-			setIsLoading(true);
-			const res = await fetchRecommended(recommendedType);
-			setRecommendedList(res);
-			setIsLoading(false);
-		};
-		fetchAsync();
-	}, [recommendedType, isRecommended]);
 
 	useEffect(() => {
 		const fetchData = async (id) => {
@@ -84,6 +72,8 @@ const ResultScreen = ({ match }) => {
 			for (let stream in obj) {
 				if (Object.keys(obj[stream]).includes(country.toLowerCase())) {
 					results.push(stream);
+				} else {
+					return;
 				}
 			}
 			return results;
@@ -158,53 +148,7 @@ const ResultScreen = ({ match }) => {
 					</Col>
 					<Col span={6}>
 						<h2>What to Watch</h2>
-						<div className="recommended">
-							{recommendedList ? (
-								<Tabs
-									defaultActiveKey={recommendedType}
-									centered
-									tabBarStyle={{ width: '100%', textAlign: 'center' }}
-									onChange={(activeKey) => setRecommendedType(activeKey)}
-								>
-									<TabPane tab="Movies" key="movie">
-										{isLoading ? (
-											<div className="centered-spinner">
-												<Spin />
-											</div>
-										) : (
-											<List
-												dataSource={recommendedList}
-												footer={<div>View All</div>}
-												renderItem={(item) => (
-													<Link to={`/movie/${item.id}`}>
-														<List.Item>{item.title}</List.Item>
-													</Link>
-												)}
-											/>
-										)}
-									</TabPane>
-									<TabPane tab="Series" key="series">
-										{isLoading ? (
-											<div className="centered-spinner">
-												<Spin />
-											</div>
-										) : (
-											<List
-												dataSource={recommendedList}
-												footer={<div>View All</div>}
-												renderItem={(item) => (
-													<Link to={`/series/${item.id}`}>
-														<List.Item>{item.title}</List.Item>
-													</Link>
-												)}
-											/>
-										)}
-									</TabPane>
-								</Tabs>
-							) : (
-								<Spin />
-							)}
-						</div>
+						<Recommended type={type} />
 					</Col>
 				</Row>
 			) : (

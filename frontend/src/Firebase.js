@@ -19,7 +19,7 @@ import {
 	collection,
 	query,
 	where,
-} from 'firebase/firestore/lite';
+} from 'firebase/firestore';
 import { isEmpty } from './Utils';
 import { merge } from 'lodash';
 import axios from 'axios';
@@ -130,9 +130,16 @@ const fetchTomatoMeter = async (q, type, year) => {
 		params: { q, limit: 3 },
 	};
 	const { data } = await axios.request(options);
-	if (data[dbName].length) {
+	if (data[dbName].length === 1) {
+		return data[dbName][0].meterScore;
+	} else if (data[dbName].length > 1) {
 		const item = data[dbName].filter((x) => x[queryYear] === year);
-		return item[0].meterScore || 0;
+		if (item.length) {
+			console.log(item);
+			return item[0].meterScore;
+		} else {
+			return 0;
+		}
 	} else {
 		return 0;
 	}
@@ -247,6 +254,24 @@ const checkRecommended = async (id, type) => {
 	return;
 };
 
+const fetchSuggestions = async (queryText, type) => {
+	const dbName = type === 'movie' ? 'movies' : 'series';
+	const ref = collection(db, dbName);
+	const q = query(ref, where('title', '>=', queryText), where('title', '<=', queryText + '\uf8ff'));
+	const querySnapshot = await getDocs(q);
+	const arr = [];
+	querySnapshot.forEach((doc) => {
+		const data = doc.data();
+		arr.push({
+			title: data.title,
+			id: data.imdbID,
+			year: data.year,
+			poster: data.posterURLs[92],
+		});
+	});
+	return arr;
+};
+
 export {
 	auth,
 	db,
@@ -262,4 +287,5 @@ export {
 	fetchRecommended,
 	makeOriginal,
 	fetchTomatoMeter,
+	fetchSuggestions,
 };

@@ -15,4 +15,8 @@ export const makeString = (arr) => {
 export const minutesToHoursAndMinutes = (num) =>
 	num > 60 ? Math.floor(num / 60) + 'h ' + (num % 60) + 'm' : num + 'm';
 
-export const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
+export const capitalize = (str) =>
+	str
+		.split(' ')
+		.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+		.join(' ');
