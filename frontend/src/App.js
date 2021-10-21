@@ -2,7 +2,7 @@ import React from 'react';
 import './App.css';
 import 'antd/dist/antd.dark.css';
 import { Layout } from 'antd';
-import { Switch, Route } from 'react-router-dom';
+import { Route } from 'react-router-dom';
 import SideMenu from './Components/SideMenu';
 import SearchScreen from './Screens/SearchScreen';
 import RegisterScreen from './Screens/RegisterScreen';
@@ -14,6 +14,8 @@ import ResetPasswordScreen from './Screens/ResetPasswordScreen';
 import ResultScreen from './Screens/ResultScreen';
 import HomeScreen from './Screens/HomeScreen';
 import Navbar from './Components/Navbar';
+import ScrollToTop from './Components/ScrollToTop';
+import CustomSwitch from './Components/CustomSwitch';
 
 const { Content, Footer } = Layout;
 
@@ -24,9 +26,10 @@ function App() {
 				<Layout>
 					<SideMenu />
 					<Layout>
+						<ScrollToTop />
 						<Navbar />
 						<Content style={{ padding: '10px 50px' }}>
-							<Switch>
+							<CustomSwitch>
 								<Route path="/" component={HomeScreen} exact />
 								<Route path="/login" component={LoginScreen} exact />
 								<Route path="/register" component={RegisterScreen} exact />
@@ -38,7 +41,7 @@ function App() {
 									exact
 								/>
 								<Route path={['/movie/:id', '/series/:id']} component={ResultScreen} exact />
-							</Switch>
+							</CustomSwitch>
 						</Content>
 						<Footer style={{ textAlign: 'center' }}>Flixar ©2021</Footer>
 					</Layout>
