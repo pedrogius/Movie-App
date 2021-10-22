@@ -117,7 +117,6 @@ const ResultScreen = () => {
 								<Divider />
 								<p>
 									<strong style={{ marginRight: '12px' }}>Streaming</strong>
-									{console.log(isAvailable(data.streamingInfo))}
 									{isAvailable(data.streamingInfo) ? (
 										isAvailable(data.streamingInfo).map((stream) => (
 											<Tag key={stream} color="success" icon={<CheckCircleOutlined />}>

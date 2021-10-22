@@ -220,7 +220,15 @@ const fetchRecommended = async (type) => {
 	const arr = [];
 	querySnapshot.forEach((doc) => {
 		const data = doc.data();
-		arr.push({ title: data.title, id: data.imdbID });
+		arr.push({
+			title: data.title,
+			id: data.imdbID,
+			image: data.backdropURLs[780],
+			year: data.year,
+			trailer: data.video,
+			tomatoMeter: data.tomatoMeter,
+			imdbScore: data.imdbRating,
+		});
 	});
 	return arr;
 };
@@ -228,9 +236,14 @@ const fetchRecommended = async (type) => {
 const addToRecommended = async (id, type, bool) => {
 	const dbName = type === 'movie' ? 'movies' : 'series';
 	const docRef = doc(db, dbName, id);
-	await updateDoc(docRef, {
-		isRecommended: bool,
-	});
+	const docSnap = await getDoc(docRef);
+	if (docSnap.data().backdropURLs[300]) {
+		await updateDoc(docRef, {
+			isRecommended: bool,
+		});
+	} else {
+		console.error('No backdrop');
+	}
 };
 
 const makeOriginal = async (id, type, bool) => {

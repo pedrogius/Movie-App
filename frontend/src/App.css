@@ -118,3 +118,80 @@
 .react-autosuggest__suggestion--highlighted {
 	background-color: #434343;
 }
+
+/* Swiper */
+
+.pagination {
+	bottom: 0;
+	padding-bottom: 4px;
+}
+
+.slide {
+	height: 200px;
+	overflow: hidden;
+	position: relative;
+}
+
+.slide {
+	background: linear-gradient(
+		0deg,
+		rgba(0, 0, 0, 0.9) 0%,
+		rgba(0, 0, 0, 0.8) 25%,
+		rgba(0, 0, 0, 0.4) 50%,
+		rgba(0, 0, 0, 0.2) 75%,
+		rgba(0, 0, 0, 0) 100%
+	);
+}
+
+.slide .slide-img {
+	position: relative;
+	z-index: -1;
+}
+
+.slide .tomato {
+	z-index: 1;
+	align-items: center;
+	vertical-align: middle;
+}
+
+.slide .score {
+	margin-left: 5px;
+}
+
+.slide .slide-info {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.slide-content {
+	position: absolute;
+	bottom: 10px;
+	left: 25px;
+	text-shadow: 1px 1px 3px #444;
+	width: 80%;
+}
+
+.custom-slider .swiper-container {
+	padding: 20px 0;
+}
+
+.custom-slider .swiper-slide {
+	-webkit-transition: 250ms all;
+	transition: 250ms all;
+	width: 300px;
+}
+
+.custom-slider .swiper-slide:hover {
+	-webkit-transform: scale(1.2);
+	transform: scale(1.2);
+	z-index: 1;
+}
+
+.custom-slider .swiper-slide:first-child:hover {
+	margin: 0 40px;
+}
+
+.custom-slider .swiper-slide:last-child:hover {
+	margin: 0 -40px;
+}
