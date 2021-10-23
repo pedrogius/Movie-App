@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/swiper-bundle.min.css';
 import 'swiper/swiper.min.css';
@@ -6,14 +6,40 @@ import SwiperCore, { Navigation, Autoplay } from 'swiper';
 import { useHistory } from 'react-router-dom';
 import { StarFilled } from '@ant-design/icons';
 import TrailerModal from './TrailerModal';
+import { Tooltip } from 'antd';
+import { AuthContext } from '../Context/AuthContext';
+import { addToWatchList, fetchUserWatchList, db } from '../Firebase';
+import { collection, onSnapshot, query } from 'firebase/firestore';
 
 SwiperCore.use([Navigation, Autoplay]);
 
 const Carousel = ({ title, data }) => {
+	const [watchList, setWatchList] = useState(null);
+	const { user } = useContext(AuthContext);
+
+	const handleAddToWatchList = async (item, e) => {
+		e.stopPropagation();
+		const method = watchList.includes(item.id) ? 'remove' : 'add';
+		await addToWatchList(method, user.uid, item);
+	};
+
+	useEffect(() => {
+		const q = query(collection(db, 'users', user.uid, 'watchList'));
+		const unsub = onSnapshot(q, (querySnapshot) => {
+			const list = [];
+			querySnapshot.forEach((doc) => {
+				list.push(doc.data().id);
+			});
+			setWatchList(list);
+		});
+		return () => unsub();
+	}, [user]);
+
+	console.log(watchList);
 	const history = useHistory();
 	return (
 		<div className="custom-slider">
-			<h2>Recommended</h2>
+			<h2>{title}</h2>
 			<Swiper
 				slidesPerView={'auto'}
 				spaceBetween={10}
@@ -38,6 +64,15 @@ const Carousel = ({ title, data }) => {
 							onClick={() => history.push(`/movie/${item.id}`)}
 						>
 							<div className="slide">
+								<Tooltip
+									title={
+										watchList?.includes(item.id) ? 'Remove From Watchlist' : 'Add To Watchlist'
+									}
+								>
+									<div className="ribbon" onClick={(e) => handleAddToWatchList(item, e)}>
+										{watchList?.includes(item.id) ? '-' : '+'}
+									</div>
+								</Tooltip>
 								<img
 									className="slide-img"
 									src={item.image}
@@ -57,9 +92,11 @@ const Carousel = ({ title, data }) => {
 											<StarFilled style={{ fontSize: '16px', color: 'yellow' }} />
 											<strong className="score">{item.imdbScore}</strong>
 										</div>
-										<div className="trailer">
-											<TrailerModal id={item.trailer} />
-										</div>
+										{item.trailer && (
+											<div className="trailer">
+												<TrailerModal id={item.trailer} />
+											</div>
+										)}
 									</div>
 								</div>
 							</div>

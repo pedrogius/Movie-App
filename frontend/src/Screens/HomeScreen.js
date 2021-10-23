@@ -25,7 +25,10 @@ const HomeScreen = () => {
 			{isLoading ? (
 				<Skeleton active />
 			) : (
-				<Carousel data={recommendedMovies} title="Recommended Movies" />
+				<>
+					<Carousel data={recommendedMovies} title="Recommended Movies" />
+					<Carousel data={recommendedSeries} title="Recommended Series" />
+				</>
 			)}
 		</div>
 	);

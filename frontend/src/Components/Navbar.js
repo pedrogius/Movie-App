@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Image, Layout, Affix, Select } from 'antd';
+import { Image, Layout, Affix, Select, Input } from 'antd';
 import { useHistory, withRouter, useRouteMatch } from 'react-router-dom';
 import Autosuggest from 'react-autosuggest';
 import { useDebounce } from 'use-debounce';
 import { fetchSuggestions } from '../Firebase';
 import { capitalize } from '../Utils';
+import { SearchOutlined } from '@ant-design/icons';
 
 const { Header } = Layout;
 const { Option } = Select;
@@ -99,8 +100,9 @@ const Navbar = () => {
 									e.preventDefault();
 									history.push(`/search/${type}/${value}`);
 								}}
+								style={{ display: 'flex', alignItems: 'center' }}
 							>
-								<input {...inputProps} />
+								<Input {...inputProps} suffix={<SearchOutlined />} style={{ width: '500px' }} />
 							</form>
 						)}
 						alwaysRenderSuggestions={false}

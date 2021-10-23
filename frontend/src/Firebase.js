@@ -19,6 +19,7 @@ import {
 	collection,
 	query,
 	where,
+	deleteDoc,
 } from 'firebase/firestore';
 import { isEmpty } from './Utils';
 import { merge } from 'lodash';
@@ -134,8 +135,7 @@ const fetchTomatoMeter = async (q, type, year) => {
 		return data[dbName][0].meterScore;
 	} else if (data[dbName].length > 1) {
 		const item = data[dbName].filter((x) => x[queryYear] === year);
-		if (item.length) {
-			console.log(item);
+		if (item[0].meterScore) {
 			return item[0].meterScore;
 		} else {
 			return 0;
@@ -285,6 +285,24 @@ const fetchSuggestions = async (queryText, type) => {
 	return arr;
 };
 
+const addToWatchList = async (method, user, item) => {
+	if (method === 'add') {
+		const itemRef = doc(db, 'users', user, 'watchList', item.id);
+		await setDoc(itemRef, item);
+	} else {
+		const itemRef = doc(db, 'users', user, 'watchList', item.id);
+		await deleteDoc(itemRef);
+	}
+};
+
+const fetchUserWatchList = async (user) => {
+	const watchListRef = collection(db, 'users', user, 'watchList');
+	const docSnap = await getDocs(watchListRef);
+	const watchList = [];
+	docSnap.forEach((doc) => watchList.push(doc.data().id));
+	return watchList;
+};
+
 export {
 	auth,
 	db,
@@ -301,4 +319,6 @@ export {
 	makeOriginal,
 	fetchTomatoMeter,
 	fetchSuggestions,
+	addToWatchList,
+	fetchUserWatchList,
 };
