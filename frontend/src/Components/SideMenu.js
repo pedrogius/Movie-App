@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { Layout, Menu, Modal, Select, Affix } from 'antd';
+import { Layout, Menu, Modal, Select, Affix, Button } from 'antd';
 import {
 	LoginOutlined,
 	FireOutlined,
@@ -8,6 +8,8 @@ import {
 	EyeOutlined,
 	InfoCircleOutlined,
 	HomeOutlined,
+	MenuFoldOutlined,
+	MenuUnfoldOutlined,
 } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
 import { CountryContext } from '../Context/CountryContext';
@@ -18,7 +20,6 @@ const { Option } = Select;
 
 const SideMenu = () => {
 	const [isModalVisible, setIsModalVisible] = useState(false);
-	const [collapsed, setCollapsed] = useState(true);
 
 	const { country, setCountry } = useContext(CountryContext);
 	const { user } = useContext(AuthContext);
@@ -38,29 +39,57 @@ const SideMenu = () => {
 	const handleCancel = () => {
 		setIsModalVisible(false);
 	};
-
-	const onCollapse = (collapsed) => {
-		setCollapsed(collapsed);
-	};
 	return (
-		<Affix>
-			<Sider collapsible collapsed={collapsed} onCollapse={onCollapse}>
-				<Modal
-					title="Choose Country"
-					visible={isModalVisible}
-					onOk={handleOk}
-					onCancel={handleCancel}
+		<Affix offsetTop={150} style={{ position: 'absolute' }}>
+			<Modal
+				title="Choose Country"
+				visible={isModalVisible}
+				onOk={handleOk}
+				onCancel={handleCancel}
+			>
+				<p>Choose Country</p>
+				<Select
+					defaultValue={country}
+					style={{ width: 120 }}
+					onChange={(value) => setModalCountry(value)}
 				>
-					<p>Choose Country</p>
-					<Select
-						defaultValue={country}
-						style={{ width: 120 }}
-						onChange={(value) => setModalCountry(value)}
+					<Option value="AR">Argentina</Option>
+					<Option value="US">United States</Option>
+				</Select>
+			</Modal>
+			<div style={{ width: 50 }}>
+				<Menu
+					expandIcon={<MenuFoldOutlined />}
+					defaultSelectedKeys={['1']}
+					mode="inline"
+					inlineCollapsed={true}
+					theme="dark"
+					style={{ width: 50, borderRadius: '0px 5px 5px 0px' }}
+				>
+					<Menu.Item
+						key="1"
+						icon={
+							<Link to={user ? '/dashboard' : '/login'}>
+								<LoginOutlined />
+							</Link>
+						}
 					>
-						<Option value="AR">Argentina</Option>
-						<Option value="US">United States</Option>
-					</Select>
-				</Modal>
+						{user ? 'My Account' : 'Log In / Register'}
+					</Menu.Item>
+					<Menu.Item key="2" icon={<GlobalOutlined />} onClick={showModal}>
+						Country
+					</Menu.Item>
+					<Menu.Item key="3" icon={<FireOutlined />}>
+						Recommended
+					</Menu.Item>
+					<Menu.Item key="4" icon={<InfoCircleOutlined />}>
+						About
+					</Menu.Item>
+				</Menu>
+			</div>
+		</Affix>
+		/* 			<Sider collapsible collapsed={collapsed} onCollapse={onCollapse}>
+				
 				<Menu theme="dark">
 					<Menu.Item
 						key="1"
@@ -86,21 +115,14 @@ const SideMenu = () => {
 					<Menu.Item key="3" icon={<FireOutlined />}>
 						Recommended
 					</Menu.Item>
-					<Menu.Item key="4" icon={<GlobalOutlined />} onClick={showModal}>
+					<Menu.Item key="4" icon={<GlobalOutlined />} >
 						Country
 					</Menu.Item>
-					<Menu.Item key="5" icon={<StarOutlined />}>
-						Favorites
-					</Menu.Item>
-					<Menu.Item key="6" icon={<EyeOutlined />}>
-						Seen
-					</Menu.Item>
-					<Menu.Item key="7" icon={<InfoCircleOutlined />}>
+					<Menu.Item key="5" icon={<InfoCircleOutlined />}>
 						About
 					</Menu.Item>
 				</Menu>
-			</Sider>
-		</Affix>
+			</Sider> */
 	);
 };
 

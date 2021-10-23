@@ -54,6 +54,7 @@
 	display: flex;
 	align-items: center;
 	height: 70px;
+	justify-content: center;
 }
 
 .ant-menu-item-selected {
@@ -225,10 +226,19 @@
 	top: 100%;
 }
 .ribbon:after {
-	border-left: 19px solid transparent;
+	border-left: 20px solid transparent;
 	right: 0px;
 }
 .ribbon:before {
-	border-right: 19px solid transparent;
+	border-right: 20px solid transparent;
 	left: 0px;
+}
+
+.on-watchlist {
+	background: hsla(50, 100%, 50%, 0.8);
+}
+
+.on-watchlist:after,
+.on-watchlist:before {
+	border-top: 10px solid hsla(50, 100%, 50%, 0.8);
 }

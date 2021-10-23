@@ -24,11 +24,11 @@ function App() {
 		<AuthProvider>
 			<CountryProvider>
 				<Layout>
-					<SideMenu />
+					<Navbar />
 					<Layout>
 						<ScrollToTop />
-						<Navbar />
-						<Content style={{ padding: '10px 50px' }}>
+						<SideMenu />
+						<Content style={{ padding: '10px 100px' }}>
 							<CustomSwitch>
 								<Route path="/" component={HomeScreen} exact />
 								<Route path="/login" component={LoginScreen} exact />

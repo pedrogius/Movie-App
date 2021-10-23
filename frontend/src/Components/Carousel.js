@@ -4,11 +4,11 @@ import 'swiper/swiper-bundle.min.css';
 import 'swiper/swiper.min.css';
 import SwiperCore, { Navigation, Autoplay } from 'swiper';
 import { useHistory } from 'react-router-dom';
-import { StarFilled } from '@ant-design/icons';
+import { StarFilled, CheckCircleOutlined, PlusCircleOutlined } from '@ant-design/icons';
 import TrailerModal from './TrailerModal';
 import { Tooltip } from 'antd';
 import { AuthContext } from '../Context/AuthContext';
-import { addToWatchList, fetchUserWatchList, db } from '../Firebase';
+import { addToWatchList, db } from '../Firebase';
 import { collection, onSnapshot, query } from 'firebase/firestore';
 
 SwiperCore.use([Navigation, Autoplay]);
@@ -35,7 +35,6 @@ const Carousel = ({ title, data }) => {
 		return () => unsub();
 	}, [user]);
 
-	console.log(watchList);
 	const history = useHistory();
 	return (
 		<div className="custom-slider">
@@ -69,8 +68,15 @@ const Carousel = ({ title, data }) => {
 										watchList?.includes(item.id) ? 'Remove From Watchlist' : 'Add To Watchlist'
 									}
 								>
-									<div className="ribbon" onClick={(e) => handleAddToWatchList(item, e)}>
-										{watchList?.includes(item.id) ? '-' : '+'}
+									<div
+										className={`ribbon ${watchList?.includes(item.id) ? 'on-watchlist' : null}`}
+										onClick={(e) => handleAddToWatchList(item, e)}
+									>
+										{watchList?.includes(item.id) ? (
+											<CheckCircleOutlined />
+										) : (
+											<PlusCircleOutlined />
+										)}
 									</div>
 								</Tooltip>
 								<img
@@ -89,7 +95,7 @@ const Carousel = ({ title, data }) => {
 											<strong className="score">{item.tomatoMeter}%</strong>
 										</div>
 										<div className="imdb">
-											<StarFilled style={{ fontSize: '16px', color: 'yellow' }} />
+											<StarFilled style={{ fontSize: '16px', color: 'hsla(50, 100%, 50%, 1)' }} />
 											<strong className="score">{item.imdbScore}</strong>
 										</div>
 										{item.trailer && (
