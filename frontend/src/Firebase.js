@@ -97,8 +97,7 @@ const register = async (email, password) => {
 			});
 		}
 	} catch (err) {
-		console.error(err);
-		alert(err.message);
+		throw new Error(err);
 	}
 };
 const resetPassword = async (email) => {

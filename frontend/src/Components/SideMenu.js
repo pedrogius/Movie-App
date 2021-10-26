@@ -17,7 +17,7 @@ const SideMenu = () => {
 	const [isModalVisible, setIsModalVisible] = useState(false);
 
 	const { country, setCountry } = useContext(CountryContext);
-	const { isAdmin, user } = useContext(AuthContext);
+	const { user } = useContext(AuthContext);
 
 	const [modalCountry, setModalCountry] = useState(country);
 
@@ -65,7 +65,7 @@ const SideMenu = () => {
 						<Menu.Item
 							key="1"
 							icon={
-								<Link to={isAdmin ? '/dashboard' : '/login'}>
+								<Link to={user ? '/dashboard' : '/login'}>
 									<LoginOutlined />
 								</Link>
 							}

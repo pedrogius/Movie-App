@@ -1,26 +1,62 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Form, Button, Input } from 'antd';
+import { Form, Button, Input, notification, Spin } from 'antd';
 import { Link, useHistory } from 'react-router-dom';
 import { register, signInWithGoogle } from '../Firebase';
 import { AuthContext } from '../Context/AuthContext';
+import { parseFirebaseError } from '../Utils';
 
 const RegisterScreen = () => {
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
+	const [isLoading, setIsLoading] = useState(false);
+	const [formStatus, setFormStatus] = useState('');
+	const [disabled, setDisabled] = useState(false);
 	const history = useHistory();
 
 	const { user } = useContext(AuthContext);
 
 	useEffect(() => {
-		if (user) history.replace('/dashboard');
+		if (user) {
+			history.replace('/dashboard');
+		}
 	}, [user, history]);
 
 	const onFinishFailed = (errorInfo) => {
 		console.log('Failed:', errorInfo);
 	};
 
-	const signUp = () => {
-		register(email, password);
+	const signUp = async () => {
+		try {
+			setIsLoading(true);
+			setFormStatus('validating');
+			setDisabled(true);
+			await register(email, password);
+			setIsLoading(false);
+			setFormStatus('success');
+			notification.success({
+				message: 'Registration Successful!',
+				description: 'Welcome to Flixar',
+				placement: 'bottomRight',
+			});
+		} catch (e) {
+			setIsLoading(false);
+			setDisabled(false);
+			setFormStatus('error');
+			const { type, message } = parseFirebaseError(e);
+			if (type === 'auth') {
+				notification.error({
+					message: 'Registration Failed',
+					description: message,
+					placement: 'bottomRight',
+				});
+			} else {
+				notification.error({
+					message: 'Registration Failed',
+					description: 'Something Went Wrong',
+					placement: 'bottomRight',
+				});
+			}
+		}
 	};
 
 	return (
@@ -49,6 +85,7 @@ const RegisterScreen = () => {
 							message: 'Please input your email!',
 						},
 					]}
+					validateStatus={formStatus}
 				>
 					<Input value={email} onChange={(e) => setEmail(e.target.value)} />
 				</Form.Item>
@@ -63,6 +100,7 @@ const RegisterScreen = () => {
 						},
 					]}
 					hasFeedback
+					validateStatus={formStatus}
 				>
 					<Input.Password value={password} onChange={(e) => setPassword(e.target.value)} />
 				</Form.Item>
@@ -79,15 +117,17 @@ const RegisterScreen = () => {
 						({ getFieldValue }) => ({
 							validator(_, value) {
 								if (!value || getFieldValue('password') === value) {
+									setFormStatus('success');
 									return Promise.resolve();
 								}
-
+								setFormStatus('error');
 								return Promise.reject(
 									new Error('The two passwords that you entered do not match!')
 								);
 							},
 						}),
 					]}
+					validateStatus={formStatus}
 				>
 					<Input.Password />
 				</Form.Item>
@@ -98,8 +138,8 @@ const RegisterScreen = () => {
 						span: 16,
 					}}
 				>
-					<Button type="primary" htmlType="submit">
-						Sign Up
+					<Button disabled={disabled} type="primary" htmlType="submit">
+						{isLoading ? <Spin>Sign Up</Spin> : 'Sign Up'}
 					</Button>
 				</Form.Item>
 			</Form>

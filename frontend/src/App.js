@@ -16,6 +16,7 @@ import HomeScreen from './Screens/HomeScreen';
 import Navbar from './Components/Navbar';
 import ScrollToTop from './Components/ScrollToTop';
 import CustomSwitch from './Components/CustomSwitch';
+import PrivateRoute from './Components/PrivateRoute';
 
 const { Content, Footer } = Layout;
 
@@ -33,7 +34,9 @@ function App() {
 								<Route path="/" component={HomeScreen} exact />
 								<Route path="/login" component={LoginScreen} exact />
 								<Route path="/register" component={RegisterScreen} exact />
-								<Route path="/dashboard" component={DashboardScreen} exact />
+								<PrivateRoute path="/dashboard" exact>
+									<DashboardScreen />
+								</PrivateRoute>
 								<Route path="/reset" component={ResetPasswordScreen} exact />
 								<Route
 									path={['/search/movie/:searchTerm', '/search/series/:searchTerm']}

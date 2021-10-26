@@ -1,41 +1,51 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState } from 'react';
 import { Form, Button, Input, Row, Col, Spin, notification } from 'antd';
-import { Link, useHistory } from 'react-router-dom';
+import { Link, useLocation, Redirect } from 'react-router-dom';
 import { signIn, signInWithGoogle } from '../Firebase';
-import { AuthContext } from '../Context/AuthContext';
+import { parseFirebaseError } from '../Utils';
 
 function LoginScreen() {
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
 	const [isLoading, setIsLoading] = useState(false);
 	const [formStatus, setFormStatus] = useState('');
-	const history = useHistory();
+	const [disabled, setDisabled] = useState(false);
+	const [redirectToReferrer, setRedirectToReferrer] = useState(false);
 
-	const { user } = useContext(AuthContext);
+	const { state } = useLocation();
 
-	useEffect(() => {
-		if (user) history.replace('/dashboard');
-	}, [user, history]);
-
-	useEffect(() => {
-		setFormStatus('');
-	}, [email, password]);
+	if (redirectToReferrer === true) {
+		return <Redirect to={state?.from || '/'} />;
+	}
 
 	const handleSignIn = async () => {
 		try {
 			setIsLoading(true);
+			setDisabled(true);
 			setFormStatus('validating');
 			await signIn(email, password);
-
 			setFormStatus('success');
+			notification.success({
+				message: 'Successfully Logged In',
+				description: 'Welcome Back!',
+				placement: 'bottomRight',
+			});
 			setIsLoading(false);
+			setRedirectToReferrer(true);
 		} catch (e) {
-			const err = e.message.split('Error ')[1].slice(1, -2);
-			if (err === 'auth/invalid-email' || 'auth/wrong-password') {
+			setDisabled(false);
+			const { type } = parseFirebaseError(e.message);
+			if (type === 'auth') {
 				notification.error({
 					message: 'Login Failed',
 					description: 'Please Check Your Credentials',
-					top: 100,
+					placement: 'bottomRight',
+				});
+			} else {
+				notification.error({
+					message: 'Login Failed',
+					description: 'Something Went Wrong',
+					placement: 'bottomRight',
 				});
 			}
 			setFormStatus('error');
@@ -49,7 +59,7 @@ function LoginScreen() {
 			notification.success({
 				message: 'Successfully Logged In',
 				description: 'Welcome Back!',
-				top: 100,
+				placement: 'bottomRight',
 			});
 		} catch (e) {
 			notification.error({
@@ -110,7 +120,7 @@ function LoginScreen() {
 							<Input.Password value={password} onChange={(e) => setPassword(e.target.value)} />
 						</Form.Item>
 						<Form.Item>
-							<Button disabled={isLoading} type="primary" htmlType="submit">
+							<Button disabled={disabled} type="primary" htmlType="submit">
 								{isLoading ? <Spin>Login</Spin> : 'Login'}
 							</Button>
 						</Form.Item>

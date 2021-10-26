@@ -20,3 +20,11 @@ export const capitalize = (str) =>
 		.split(' ')
 		.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
 		.join(' ');
+
+export const parseFirebaseError = (str) => {
+	const err = str.message.split('Error ')[1].slice(1, -2).split('/');
+	return {
+		type: err[0],
+		message: capitalize(err[1].split('-').join(' ')),
+	};
+};

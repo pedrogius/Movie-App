@@ -3,10 +3,10 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/swiper-bundle.min.css';
 import 'swiper/swiper.min.css';
 import SwiperCore, { Navigation, Autoplay } from 'swiper';
-import { useHistory } from 'react-router-dom';
+import { useHistory, Link } from 'react-router-dom';
 import { StarFilled, CheckCircleOutlined, PlusCircleOutlined } from '@ant-design/icons';
 import TrailerModal from './TrailerModal';
-import { Tooltip } from 'antd';
+import { Tooltip, notification } from 'antd';
 import { AuthContext } from '../Context/AuthContext';
 import { addToWatchList, db } from '../Firebase';
 import { collection, onSnapshot, query } from 'firebase/firestore';
@@ -18,21 +18,45 @@ const Carousel = ({ title, data }) => {
 	const { user } = useContext(AuthContext);
 
 	const handleAddToWatchList = async (item, e) => {
+		console.log(user);
 		e.stopPropagation();
-		const method = watchList.includes(item.id) ? 'remove' : 'add';
-		await addToWatchList(method, user.uid, item);
+		if (user) {
+			const method = watchList.includes(item.id) ? 'remove' : 'add';
+			try {
+				await addToWatchList(method, user.uid, item);
+			} catch (error) {
+				notification.error({
+					message: 'Error',
+					description: 'Something Went Wrong',
+					placement: 'bottomRight',
+				});
+			}
+		} else {
+			notification.warning({
+				message: 'Account Required',
+				description: (
+					<div>
+						Please <Link to="/login">login</Link> or
+						<Link to="/register">create an account</Link> to keep a watchlist
+					</div>
+				),
+				placement: 'bottomRight',
+			});
+		}
 	};
 
 	useEffect(() => {
-		const q = query(collection(db, 'users', user.uid, 'watchList'));
-		const unsub = onSnapshot(q, (querySnapshot) => {
-			const list = [];
-			querySnapshot.forEach((doc) => {
-				list.push(doc.data().id);
+		if (user) {
+			const q = query(collection(db, 'users', user.uid, 'watchList'));
+			const unsub = onSnapshot(q, (querySnapshot) => {
+				const list = [];
+				querySnapshot.forEach((doc) => {
+					list.push(doc.data().id);
+				});
+				setWatchList(list);
 			});
-			setWatchList(list);
-		});
-		return () => unsub();
+			return () => unsub();
+		}
 	}, [user]);
 
 	const history = useHistory();
