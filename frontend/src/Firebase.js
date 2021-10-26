@@ -65,16 +65,14 @@ const signInWithGoogle = async () => {
 			});
 		}
 	} catch (err) {
-		console.error(err);
-		alert(err.message);
+		throw new Error(err);
 	}
 };
 const signIn = async (email, password) => {
 	try {
-		await signInWithEmailAndPassword(email, password);
+		await signInWithEmailAndPassword(auth, email, password);
 	} catch (err) {
-		console.error(err);
-		alert(err.message);
+		throw new Error(err);
 	}
 };
 const register = async (email, password) => {
@@ -119,7 +117,7 @@ const logout = () => {
 const getUser = async (uid) => {
 	const docRef = doc(db, 'users', uid);
 	const docSnap = await getDoc(docRef);
-	return docSnap;
+	return docSnap.data();
 };
 
 const fetchTomatoMeter = async (q, type, year) => {

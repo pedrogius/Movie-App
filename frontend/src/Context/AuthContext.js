@@ -9,16 +9,24 @@ export const AuthProvider = ({ children }) => {
 	const [isAdmin, setIsAdmin] = useState(false);
 
 	useEffect(() => {
-		onAuthStateChanged(auth, async (user) => {
+		onAuthStateChanged(auth, (user) => {
 			if (user) {
-				const userDataFromDB = await getUser(user.uid);
-				setIsAdmin(userDataFromDB.data().isAdmin);
 				setUser(user);
 			} else {
 				setUser(null);
 			}
 		});
 	}, []);
+
+	useEffect(() => {
+		if (user) {
+			getUser(user.uid)
+				.then((res) => {
+					setIsAdmin(res.isAdmin);
+				})
+				.catch((err) => console.log(err));
+		}
+	}, [user]);
 
 	return <AuthContext.Provider value={{ user, isAdmin }}>{children}</AuthContext.Provider>;
 };

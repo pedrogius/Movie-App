@@ -9,15 +9,15 @@ const HomeScreen = () => {
 	const [isLoading, setIsLoading] = useState(true);
 
 	useEffect(() => {
-		const fetchAsync = async () => {
-			setIsLoading(true);
-			const movieRes = await fetchRecommended('movie');
-			const seriesRes = await fetchRecommended('series');
-			setRecommendedMovies(movieRes);
-			setRecommendedSeries(seriesRes);
-			setIsLoading(false);
-		};
-		fetchAsync();
+		fetchRecommended('movie')
+			.then((res) => setRecommendedMovies(res))
+			.catch((e) => console.log(e));
+		fetchRecommended('series')
+			.then((res) => {
+				setRecommendedSeries(res);
+				setIsLoading(false);
+			})
+			.catch((e) => console.log(e));
 	}, []);
 
 	return (
