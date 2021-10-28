@@ -300,6 +300,25 @@ const fetchUserWatchList = async (user) => {
 	return watchList;
 };
 
+const getUserProfile = async (id) => {
+	const docRef = doc(db, 'users', id);
+	try {
+		const user = await getDoc(docRef);
+		return user.data();
+	} catch (e) {
+		throw new Error(e);
+	}
+};
+
+const updateUserProfile = async (user, data) => {
+	const docRef = doc(db, 'users', user);
+	try {
+		await updateDoc(docRef, data);
+	} catch (e) {
+		throw new Error(e);
+	}
+};
+
 export {
 	auth,
 	db,
@@ -318,4 +337,6 @@ export {
 	fetchSuggestions,
 	addToWatchList,
 	fetchUserWatchList,
+	updateUserProfile,
+	getUserProfile,
 };

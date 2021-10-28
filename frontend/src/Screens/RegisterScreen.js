@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Form, Button, Input, notification, Spin } from 'antd';
+import { Form, Button, Input, notification, Spin, Row } from 'antd';
 import { Link, useHistory } from 'react-router-dom';
 import { register, signInWithGoogle } from '../Firebase';
 import { AuthContext } from '../Context/AuthContext';
 import { parseFirebaseError } from '../Utils';
+import { LockOutlined, UserOutlined } from '@ant-design/icons';
 
 const RegisterScreen = () => {
 	const [email, setEmail] = useState('');
@@ -60,94 +61,94 @@ const RegisterScreen = () => {
 	};
 
 	return (
-		<>
-			<Form
-				name="basic"
-				labelCol={{
-					span: 8,
-				}}
-				wrapperCol={{
-					span: 8,
-				}}
-				initialValues={{
-					remember: true,
-				}}
-				onFinish={signUp}
-				onFinishFailed={onFinishFailed}
-				autoComplete="off"
-			>
-				<Form.Item
-					label="Email"
-					name="email"
-					rules={[
-						{
-							required: true,
-							message: 'Please input your email!',
-						},
-					]}
-					validateStatus={formStatus}
-				>
-					<Input value={email} onChange={(e) => setEmail(e.target.value)} />
-				</Form.Item>
-
-				<Form.Item
-					label="Password"
-					name="password"
-					rules={[
-						{
-							required: true,
-							message: 'Please input your password!',
-						},
-					]}
-					hasFeedback
-					validateStatus={formStatus}
-				>
-					<Input.Password value={password} onChange={(e) => setPassword(e.target.value)} />
-				</Form.Item>
-				<Form.Item
-					name="confirm"
-					label="Confirm Password"
-					dependencies={['password']}
-					hasFeedback
-					rules={[
-						{
-							required: true,
-							message: 'Please confirm your password!',
-						},
-						({ getFieldValue }) => ({
-							validator(_, value) {
-								if (!value || getFieldValue('password') === value) {
-									setFormStatus('success');
-									return Promise.resolve();
-								}
-								setFormStatus('error');
-								return Promise.reject(
-									new Error('The two passwords that you entered do not match!')
-								);
-							},
-						}),
-					]}
-					validateStatus={formStatus}
-				>
-					<Input.Password />
-				</Form.Item>
-
-				<Form.Item
-					wrapperCol={{
-						offset: 8,
-						span: 16,
+		<Row justify="center">
+			<div className="login-card">
+				<h2>Welcome</h2>
+				<h4>Register Your Flixar Account</h4>
+				<Form
+					name="basic"
+					initialValues={{
+						remember: true,
 					}}
+					onFinish={signUp}
+					onFinishFailed={onFinishFailed}
+					autoComplete="off"
 				>
-					<Button disabled={disabled} type="primary" htmlType="submit">
-						{isLoading ? <Spin>Sign Up</Spin> : 'Sign Up'}
-					</Button>
-				</Form.Item>
-			</Form>
-			<Button onClick={signInWithGoogle}>Login with Google</Button>
-			<div>
-				Already have an account? <Link to="/login">Login</Link> now.
+					<Form.Item
+						name="email"
+						rules={[
+							{
+								required: true,
+								message: 'Please input your email!',
+							},
+						]}
+						validateStatus={formStatus}
+					>
+						<Input
+							prefix={<UserOutlined />}
+							placeholder="Email"
+							value={email}
+							onChange={(e) => setEmail(e.target.value)}
+						/>
+					</Form.Item>
+
+					<Form.Item
+						name="password"
+						rules={[
+							{
+								required: true,
+								message: 'Please input your password!',
+							},
+						]}
+						hasFeedback
+						validateStatus={formStatus}
+					>
+						<Input.Password
+							prefix={<LockOutlined />}
+							placeholder="Password"
+							value={password}
+							onChange={(e) => setPassword(e.target.value)}
+						/>
+					</Form.Item>
+					<Form.Item
+						name="confirm"
+						dependencies={['password']}
+						hasFeedback
+						rules={[
+							{
+								required: true,
+								message: 'Please confirm your password!',
+							},
+							({ getFieldValue }) => ({
+								validator(_, value) {
+									if (!value || getFieldValue('password') === value) {
+										setFormStatus('success');
+										return Promise.resolve();
+									}
+									setFormStatus('error');
+									return Promise.reject(
+										new Error('The two passwords that you entered do not match!')
+									);
+								},
+							}),
+						]}
+						validateStatus={formStatus}
+					>
+						<Input.Password prefix={<LockOutlined />} placeholder="Confirm Password" />
+					</Form.Item>
+
+					<Form.Item>
+						<Button disabled={disabled} type="primary" htmlType="submit">
+							{isLoading ? <Spin>Sign Up</Spin> : 'Sign Up'}
+						</Button>
+					</Form.Item>
+				</Form>
+				<Button onClick={signInWithGoogle}>Login with Google</Button>
+				<div>
+					Already have an account? <Link to="/login">Login</Link> now.
+				</div>
 			</div>
-		</>
+		</Row>
 	);
 };
 

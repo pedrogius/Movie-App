@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useRouteMatch } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import { Skeleton, Row, Col, Button, Image, Divider, Tag } from 'antd';
+import { Skeleton, Row, Col, Button, Image, Divider, Tag, Spin } from 'antd';
 import { CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
 import { CountryContext } from '../Context/CountryContext';
 import { AuthContext } from '../Context/AuthContext';
@@ -21,16 +21,22 @@ const ResultScreen = () => {
 	const [data, setData] = useState(null);
 	const [isRecommended, setIsRecommended] = useState(false);
 	const [isOriginal, setIsOriginal] = useState(false);
+	const [isLoading, setIsLoading] = useState(false);
 	const { type, id } = match.params;
 
 	const { country } = useContext(CountryContext);
 	const { isAdmin } = useContext(AuthContext);
 
 	useEffect(() => {
+		setIsLoading(true);
+	}, [country]);
+
+	useEffect(() => {
 		const fetchData = async (id) => {
 			try {
 				const res = await fetchFromDB(id, type, country);
 				setData(res);
+				setIsLoading(false);
 			} catch (e) {
 				console.log(e);
 			}
@@ -117,7 +123,9 @@ const ResultScreen = () => {
 								<Divider />
 								<p>
 									<strong style={{ marginRight: '12px' }}>Streaming</strong>
-									{isAvailable(data.streamingInfo) ? (
+									{isLoading ? (
+										<Spin />
+									) : isAvailable(data.streamingInfo) ? (
 										isAvailable(data.streamingInfo).map((stream) => (
 											<Tag key={stream} color="success" icon={<CheckCircleOutlined />}>
 												{capitalize(stream)}

@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
-import { Form, Button, Input, Row, Col, Spin, notification } from 'antd';
-import { Link, useLocation, Redirect } from 'react-router-dom';
+import React, { useState, useEffect, useContext } from 'react';
+import { Form, Button, Input, Row, Spin, notification } from 'antd';
+import { Link, useLocation, Redirect, useHistory } from 'react-router-dom';
 import { signIn, signInWithGoogle } from '../Firebase';
 import { parseFirebaseError } from '../Utils';
+import { LockOutlined, UserOutlined } from '@ant-design/icons';
+import { AuthContext } from '../Context/AuthContext';
 
 function LoginScreen() {
 	const [email, setEmail] = useState('');
@@ -13,6 +15,16 @@ function LoginScreen() {
 	const [redirectToReferrer, setRedirectToReferrer] = useState(false);
 
 	const { state } = useLocation();
+
+	const history = useHistory();
+
+	const { user } = useContext(AuthContext);
+
+	useEffect(() => {
+		if (user) {
+			history.replace('/dashboard');
+		}
+	}, [user, history]);
 
 	if (redirectToReferrer === true) {
 		return <Redirect to={state?.from || '/'} />;
@@ -34,7 +46,7 @@ function LoginScreen() {
 			setRedirectToReferrer(true);
 		} catch (e) {
 			setDisabled(false);
-			const { type } = parseFirebaseError(e.message);
+			const { type } = parseFirebaseError(e);
 			if (type === 'auth') {
 				notification.error({
 					message: 'Login Failed',
@@ -71,69 +83,87 @@ function LoginScreen() {
 		}
 	};
 
-	const onFinishFailed = (errorInfo) => {
-		console.log('Failed:', errorInfo);
+	const onFinishFailed = () => {
+		setFormStatus('error');
 	};
 
 	return (
 		<Row justify="center">
-			<Col>
-				<div className="login-card">
-					<h2>Welcome</h2>
-					<h4>Login to Flixar</h4>
-					<Form
-						name="basic"
-						initialValues={{
-							remember: true,
-						}}
-						onFinish={handleSignIn}
-						onFinishFailed={onFinishFailed}
-						autoComplete="off"
+			<div className="login-card">
+				<h2>Welcome</h2>
+				<h4>Login to Flixar</h4>
+				<Form
+					name="basic"
+					initialValues={{
+						remember: true,
+					}}
+					onFinish={handleSignIn}
+					onFinishFailed={onFinishFailed}
+					autoComplete="off"
+				>
+					<Form.Item
+						name="username"
+						rules={[
+							{
+								required: true,
+								message: 'Please input your username!',
+							},
+						]}
+						hasFeedback
+						validateStatus={formStatus}
 					>
-						<Form.Item
-							label="Username"
-							name="username"
-							rules={[
-								{
-									required: true,
-									message: 'Please input your username!',
-								},
-							]}
-							hasFeedback
-							validateStatus={formStatus}
-						>
-							<Input value={email} onChange={(e) => setEmail(e.target.value)} />
-						</Form.Item>
+						<Input
+							prefix={<UserOutlined />}
+							placeholder="Email"
+							value={email}
+							onChange={(e) => {
+								const { value } = e.target;
+								if (value > email) {
+									setFormStatus('');
+								}
+								setEmail(value);
+							}}
+						/>
+					</Form.Item>
 
-						<Form.Item
-							label="Password"
-							name="password"
-							rules={[
-								{
-									required: true,
-									message: 'Please input your password!',
-								},
-							]}
-							hasFeedback
-							validateStatus={formStatus}
-						>
-							<Input.Password value={password} onChange={(e) => setPassword(e.target.value)} />
-						</Form.Item>
-						<Form.Item>
-							<Button disabled={disabled} type="primary" htmlType="submit">
-								{isLoading ? <Spin>Login</Spin> : 'Login'}
-							</Button>
-						</Form.Item>
-					</Form>
-					<Button onClick={handleSignInWithGoogle}>Login with Google</Button>
-					<div>
-						<Link to="/reset">Forgot Password</Link>
-					</div>
-					<div>
-						Don't have an account? <Link to="/register">Register</Link> now.
-					</div>
+					<Form.Item
+						name="password"
+						rules={[
+							{
+								required: true,
+								message: 'Please input your password!',
+							},
+						]}
+						hasFeedback
+						validateStatus={formStatus}
+					>
+						<Input.Password
+							prefix={<LockOutlined />}
+							placeholder="Password"
+							value={password}
+							onChange={(e) => {
+								const { value } = e.target;
+								if (value > password) {
+									setFormStatus('');
+								}
+								setPassword(value);
+							}}
+						/>
+					</Form.Item>
+					<Form.Item>
+						<Button disabled={disabled} type="primary" htmlType="submit">
+							{isLoading ? <Spin>Login</Spin> : 'Login'}
+						</Button>
+					</Form.Item>
+				</Form>
+				<Button onClick={handleSignInWithGoogle}>Login with Google</Button>
+				<div>
+					<Link to="/reset">Forgot Password</Link>
 				</div>
-			</Col>
+				<div>
+					Don't have an account? <Link to="/register">Register</Link> now.
+				</div>
+			</div>
 		</Row>
 	);
 }

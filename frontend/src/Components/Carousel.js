@@ -3,7 +3,7 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/swiper-bundle.min.css';
 import 'swiper/swiper.min.css';
 import SwiperCore, { Navigation, Autoplay } from 'swiper';
-import { useHistory, Link } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 import { StarFilled, CheckCircleOutlined, PlusCircleOutlined } from '@ant-design/icons';
 import TrailerModal from './TrailerModal';
 import { Tooltip, notification } from 'antd';
@@ -16,6 +16,8 @@ SwiperCore.use([Navigation, Autoplay]);
 const Carousel = ({ title, data }) => {
 	const [watchList, setWatchList] = useState(null);
 	const { user } = useContext(AuthContext);
+
+	const history = useHistory();
 
 	const handleAddToWatchList = async (item, e) => {
 		console.log(user);
@@ -36,8 +38,16 @@ const Carousel = ({ title, data }) => {
 				message: 'Account Required',
 				description: (
 					<div>
-						Please <Link to="/login">login</Link> or
-						<Link to="/register">create an account</Link> to keep a watchlist
+						Please{' '}
+						<strong className="notification-link" onClick={() => history.push('/login')}>
+							login
+						</strong>{' '}
+						or
+						<strong className="notification-link" onClick={() => history.push('/register')}>
+							{' '}
+							create an account
+						</strong>{' '}
+						to keep a watchlist
 					</div>
 				),
 				placement: 'bottomRight',
@@ -59,7 +69,6 @@ const Carousel = ({ title, data }) => {
 		}
 	}, [user]);
 
-	const history = useHistory();
 	return (
 		<div className="custom-slider">
 			<h2>{title}</h2>
@@ -97,9 +106,9 @@ const Carousel = ({ title, data }) => {
 										onClick={(e) => handleAddToWatchList(item, e)}
 									>
 										{watchList?.includes(item.id) ? (
-											<CheckCircleOutlined />
+											<CheckCircleOutlined className="watchlist-icon" />
 										) : (
-											<PlusCircleOutlined />
+											<PlusCircleOutlined className="watchlist-icon" />
 										)}
 									</div>
 								</Tooltip>
