@@ -269,3 +269,8 @@
 	padding: 40px;
 	border-radius: 5px;
 }
+
+.ant-tabs-tab {
+	justify-content: center;
+	margin: 0 !important;
+}

@@ -17,9 +17,11 @@ const RegisterScreen = () => {
 	const { user } = useContext(AuthContext);
 
 	useEffect(() => {
-		if (user) {
+		let mounted = true;
+		if (user && mounted) {
 			history.replace('/dashboard');
 		}
+		return () => (mounted = false);
 	}, [user, history]);
 
 	const onFinishFailed = (errorInfo) => {
@@ -33,10 +35,9 @@ const RegisterScreen = () => {
 			setDisabled(true);
 			await register(email, password);
 			setIsLoading(false);
-			setFormStatus('success');
 			notification.success({
-				message: 'Registration Successful!',
-				description: 'Welcome to Flixar',
+				message: 'Welcome To Flixar!',
+				description: 'Your Account Was Successfully Created',
 				placement: 'bottomRight',
 			});
 		} catch (e) {

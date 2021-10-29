@@ -1,10 +1,11 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { Button, Row, Form, Input, Select, notification, Spin } from 'antd';
+import { Button, Row, Form, Input, Select, notification, Spin, Tabs } from 'antd';
 import { logout } from '../Firebase';
 import { AuthContext } from '../Context/AuthContext';
 import { CountryContext } from '../Context/CountryContext';
-import { updateUserProfile, getUserProfile } from '../Firebase';
+import { updateUserProfile, getUserProfile, updateUserPassword } from '../Firebase';
 import { parseFirebaseError } from '../Utils';
+import { LockOutlined } from '@ant-design/icons';
 
 const DashboardScreen = () => {
 	const [userDataFromDB, setUserDataFromDB] = useState(null);
@@ -13,8 +14,15 @@ const DashboardScreen = () => {
 	const [isLoading, setIsLoading] = useState(false);
 	const [name, setName] = useState('');
 	const [selectedCountry, setSelectedCountry] = useState('');
+	const [oldPassword, setOldPassword] = useState('');
+	const [newPassword, setNewPassword] = useState('');
+	const [formStatus, setFormStatus] = useState();
 	const { user } = useContext(AuthContext);
 	const { country } = useContext(CountryContext);
+
+	const [form] = Form.useForm();
+
+	const { TabPane } = Tabs;
 
 	useEffect(() => {
 		let mounted = true;
@@ -63,7 +71,7 @@ const DashboardScreen = () => {
 			await updateUserProfile(user.uid, values);
 			notification.success({
 				message: 'Profile Update Saved!',
-				description: 'Your Profile was Successfully Updated',
+				description: 'Your Profile Was Successfully Updated',
 				placement: 'bottomRight',
 			});
 		} catch (e) {
@@ -77,66 +85,176 @@ const DashboardScreen = () => {
 		setIsLoading(false);
 	};
 
+	const handleNewPasswordSubmit = async () => {
+		try {
+			setIsLoading(true);
+			setFormStatus('validating');
+			await updateUserPassword(user.email, oldPassword, newPassword);
+			notification.success({
+				message: 'Password Updated!',
+				description: 'Your Password Was Successfully Updated',
+				placement: 'bottomRight',
+			});
+			setFormStatus('');
+			form.resetFields();
+		} catch (e) {
+			setFormStatus('error');
+			const { message } = parseFirebaseError(e);
+			notification.error({
+				message: 'Password Update Failed',
+				description: message,
+				placement: 'bottomRight',
+			});
+		}
+		setIsLoading(false);
+	};
+
 	const { Option } = Select;
 	return (
 		<Row justify="center">
 			<div className="profile-card">
-				<h2>Profile Edit</h2>
-				{userDataFromDB && (
-					<Form name="profile" layout="vertical" onFinish={handleSubmit}>
-						<Form.Item name="email" label="Email" initialValue={userDataFromDB.email}>
-							<Input type="email" disabled />
-						</Form.Item>
-						<Form.Item name="name" label="Name" initialValue={userDataFromDB.displayName || ''}>
-							<Input value={name} onChange={(n) => setName(n)} type="text" />
-						</Form.Item>
-						<Form.Item
-							name="country"
-							label="Country"
-							initialValue={userDataFromDB.country || country}
+				<Tabs defaultActiveKey={1} centered>
+					<TabPane tab="Profile" key="1">
+						<h2>Profile Edit</h2>
+						{userDataFromDB && (
+							<Form name="profile" layout="vertical" onFinish={handleSubmit}>
+								<Form.Item name="email" label="Email" initialValue={userDataFromDB.email}>
+									<Input type="email" disabled />
+								</Form.Item>
+								<Form.Item name="name" label="Name" initialValue={userDataFromDB.displayName || ''}>
+									<Input value={name} onChange={(n) => setName(n)} type="text" />
+								</Form.Item>
+								<Form.Item
+									name="country"
+									label="Country"
+									initialValue={userDataFromDB.country || country}
+								>
+									<Select value={selectedCountry} onChange={(c) => setSelectedCountry(c)}>
+										<Option value="AR">Argentina</Option>
+										<Option value="US">United States</Option>
+									</Select>
+								</Form.Item>
+								<Form.Item
+									name="subscriptions"
+									label="Subscriptions"
+									initialValue={userDataFromDB.subscriptions}
+								>
+									<Select
+										mode="multiple"
+										value={selectedSubscriptions}
+										onChange={handleSubscriptionChange}
+									>
+										{filteredSubscriptions.map((item) => {
+											return (
+												<Option key={item} value={item}>
+													{item}
+												</Option>
+											);
+										})}
+									</Select>
+								</Form.Item>
+								<Form.Item
+									name="genres"
+									label="Favorite Genres"
+									initialValue={userDataFromDB.genres}
+								>
+									<Select mode="multiple" value={selectedGenres} onChange={handleGenresChange}>
+										{filteredGenres.map((item) => {
+											return (
+												<Option key={item} value={item}>
+													{item}
+												</Option>
+											);
+										})}
+									</Select>
+								</Form.Item>
+								<Form.Item>
+									<Button disabled={isLoading} type="primary" htmlType="submit">
+										{isLoading ? <Spin>Save Changes</Spin> : 'Save Changes'}
+									</Button>
+								</Form.Item>
+							</Form>
+						)}
+					</TabPane>
+					<TabPane tab="Password" key="2">
+						<h2>Update Password</h2>
+						<Form
+							form={form}
+							name="password-change"
+							layout="vertical"
+							onFinish={handleNewPasswordSubmit}
 						>
-							<Select value={selectedCountry} onChange={(c) => setSelectedCountry(c)}>
-								<Option value="AR">Argentina</Option>
-								<Option value="US">United States</Option>
-							</Select>
-						</Form.Item>
-						<Form.Item
-							name="subscriptions"
-							label="Subscriptions"
-							initialValue={userDataFromDB.subscriptions}
-						>
-							<Select
-								mode="multiple"
-								value={selectedSubscriptions}
-								onChange={handleSubscriptionChange}
+							<Form.Item
+								name="oldPassword"
+								rules={[
+									{
+										required: true,
+										message: 'Please input your old password!',
+									},
+								]}
+								hasFeedback
+								validateStatus={formStatus}
 							>
-								{filteredSubscriptions.map((item) => {
-									return (
-										<Option key={item} value={item}>
-											{item}
-										</Option>
-									);
-								})}
-							</Select>
-						</Form.Item>
-						<Form.Item name="genres" label="Favorite Genres" initialValue={userDataFromDB.genres}>
-							<Select mode="multiple" value={selectedGenres} onChange={handleGenresChange}>
-								{filteredGenres.map((item) => {
-									return (
-										<Option key={item} value={item}>
-											{item}
-										</Option>
-									);
-								})}
-							</Select>
-						</Form.Item>
-						<Form.Item>
-							<Button disabled={isLoading} type="primary" htmlType="submit">
-								{isLoading ? <Spin>Save Changes</Spin> : 'Save Changes'}
-							</Button>
-						</Form.Item>
-					</Form>
-				)}
+								<Input.Password
+									prefix={<LockOutlined />}
+									placeholder="Old Password"
+									value={oldPassword}
+									onChange={(e) => setOldPassword(e.target.value)}
+								/>
+							</Form.Item>
+							<Form.Item
+								name="newPassword"
+								rules={[
+									{
+										required: true,
+										message: 'Please input your password!',
+									},
+								]}
+								hasFeedback
+								validateStatus={formStatus}
+							>
+								<Input.Password
+									prefix={<LockOutlined />}
+									placeholder="New Password"
+									value={newPassword}
+									onChange={(e) => setNewPassword(e.target.value)}
+								/>
+							</Form.Item>
+							<Form.Item
+								name="confirm"
+								dependencies={['newPassword']}
+								hasFeedback
+								rules={[
+									{
+										required: true,
+										message: 'Please confirm your password!',
+									},
+									({ getFieldValue }) => ({
+										validator(_, value) {
+											if (!value || getFieldValue('newPassword') === value) {
+												setFormStatus('success');
+												return Promise.resolve();
+											}
+											setFormStatus('error');
+											return Promise.reject(
+												new Error('The two passwords that you entered do not match!')
+											);
+										},
+									}),
+								]}
+								validateStatus={formStatus}
+							>
+								<Input.Password prefix={<LockOutlined />} placeholder="Confirm New Password" />
+							</Form.Item>
+							<Form.Item>
+								<Button disabled={isLoading} type="primary" htmlType="submit">
+									{isLoading ? <Spin>Update Password</Spin> : 'Update Password'}
+								</Button>
+							</Form.Item>
+						</Form>
+						<Button onClick={logout}>Logout</Button>
+					</TabPane>
+				</Tabs>
 			</div>
 		</Row>
 	);

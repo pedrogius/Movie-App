@@ -7,6 +7,9 @@ import {
 	createUserWithEmailAndPassword,
 	sendPasswordResetEmail,
 	signOut,
+	EmailAuthProvider,
+	reauthenticateWithCredential,
+	updatePassword,
 } from 'firebase/auth';
 import {
 	getFirestore,
@@ -319,6 +322,17 @@ const updateUserProfile = async (user, data) => {
 	}
 };
 
+const updateUserPassword = async (email, oldPassword, newPassword) => {
+	const credential = EmailAuthProvider.credential(email, oldPassword);
+	const user = auth.currentUser;
+	try {
+		await reauthenticateWithCredential(user, credential);
+		await updatePassword(user, newPassword);
+	} catch (error) {
+		throw new Error(error);
+	}
+};
+
 export {
 	auth,
 	db,
@@ -339,4 +353,5 @@ export {
 	fetchUserWatchList,
 	updateUserProfile,
 	getUserProfile,
+	updateUserPassword,
 };
