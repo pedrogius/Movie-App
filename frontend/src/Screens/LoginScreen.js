@@ -21,9 +21,11 @@ function LoginScreen() {
 	const { user } = useContext(AuthContext);
 
 	useEffect(() => {
-		if (user) {
+		let mounted = true;
+		if (user && mounted) {
 			history.replace('/dashboard');
 		}
+		return () => (mounted = false);
 	}, [user, history]);
 
 	if (redirectToReferrer === true) {

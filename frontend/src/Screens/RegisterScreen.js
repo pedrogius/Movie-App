@@ -34,7 +34,6 @@ const RegisterScreen = () => {
 			setFormStatus('validating');
 			setDisabled(true);
 			await register(email, password);
-			setIsLoading(false);
 			notification.success({
 				message: 'Welcome To Flixar!',
 				description: 'Your Account Was Successfully Created',

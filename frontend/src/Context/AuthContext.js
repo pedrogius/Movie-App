@@ -1,39 +1,33 @@
 import React, { useEffect, useState } from 'react';
-import { getUser, auth } from '../Firebase';
+import { auth, db } from '../Firebase';
 import { onAuthStateChanged } from '@firebase/auth';
+import { doc, onSnapshot } from 'firebase/firestore';
 
 export const AuthContext = React.createContext();
 
 export const AuthProvider = ({ children }) => {
 	const [user, setUser] = useState(null);
-	const [loadingAuthState, setLoadingAuthState] = useState(true);
 	const [isAdmin, setIsAdmin] = useState(false);
 
 	onAuthStateChanged(auth, (user) => {
 		if (user) {
 			setUser(user);
-			setLoadingAuthState(false);
 		} else {
 			setUser(null);
-			setLoadingAuthState(false);
 		}
 	});
 
 	useEffect(() => {
-		if (!loadingAuthState && user) {
-			setTimeout(() => {
-				getUser(user.uid)
-					.then((res) => {
-						setIsAdmin(res.isAdmin);
-					})
-					.catch((err) => console.log(err));
-			}, 5000);
+		if (user) {
+			const unsub = onSnapshot(doc(db, 'users', user.uid), (doc) => {
+				const data = doc.data();
+				setIsAdmin(data?.isAdmin);
+			});
+			return () => {
+				unsub();
+			};
 		}
-	}, [user, loadingAuthState]);
+	}, [user]);
 
-	return (
-		<AuthContext.Provider value={{ user, isAdmin, loadingAuthState }}>
-			{children}
-		</AuthContext.Provider>
-	);
+	return <AuthContext.Provider value={{ user, isAdmin }}>{children}</AuthContext.Provider>;
 };

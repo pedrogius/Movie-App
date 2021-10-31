@@ -1,11 +1,11 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { Button, Row, Form, Input, Select, notification, Spin, Tabs } from 'antd';
-import { logout } from '../Firebase';
+import { Button, Row, Form, Input, Select, notification, Spin, Tabs, Skeleton, Alert } from 'antd';
 import { AuthContext } from '../Context/AuthContext';
 import { CountryContext } from '../Context/CountryContext';
-import { updateUserProfile, getUserProfile, updateUserPassword } from '../Firebase';
+import { updateUserProfile, updateUserPassword, logout, db } from '../Firebase';
 import { parseFirebaseError } from '../Utils';
 import { LockOutlined } from '@ant-design/icons';
+import { doc, onSnapshot } from 'firebase/firestore';
 
 const DashboardScreen = () => {
 	const [userDataFromDB, setUserDataFromDB] = useState(null);
@@ -17,6 +17,7 @@ const DashboardScreen = () => {
 	const [oldPassword, setOldPassword] = useState('');
 	const [newPassword, setNewPassword] = useState('');
 	const [formStatus, setFormStatus] = useState();
+	const [showAlert, setShowAlert] = useState(false);
 	const { user } = useContext(AuthContext);
 	const { country } = useContext(CountryContext);
 
@@ -25,21 +26,15 @@ const DashboardScreen = () => {
 	const { TabPane } = Tabs;
 
 	useEffect(() => {
-		let mounted = true;
-		if (mounted) {
-			getUserProfile(user.uid)
-				.then((res) => setUserDataFromDB(res))
-				.catch((e) => {
-					const { message } = parseFirebaseError(e);
-					notification.error({
-						message: 'Something Went Wrong',
-						description: message,
-						placement: 'bottomRight',
-					});
-				});
-		}
+		const unsub = onSnapshot(doc(db, 'users', user.uid), (doc) => {
+			const data = doc.data();
+			setUserDataFromDB(data);
+			if (!data.genres || !data.subscriptions) {
+				setShowAlert(true);
+			}
+		});
 		return () => {
-			mounted = false;
+			unsub();
 		};
 	}, [user]);
 
@@ -115,13 +110,23 @@ const DashboardScreen = () => {
 			<div className="profile-card">
 				<Tabs defaultActiveKey={1} centered>
 					<TabPane tab="Profile" key="1">
-						<h2>Profile Edit</h2>
-						{userDataFromDB && (
+						{showAlert && (
+							<div className="dashboard-alert">
+								<Alert
+									closable
+									type="info"
+									message="Complete Your Profile"
+									description="To get personalized content, please fill out the forms below"
+									showIcon
+								/>
+							</div>
+						)}
+						{userDataFromDB ? (
 							<Form name="profile" layout="vertical" onFinish={handleSubmit}>
 								<Form.Item name="email" label="Email" initialValue={userDataFromDB.email}>
 									<Input type="email" disabled />
 								</Form.Item>
-								<Form.Item name="name" label="Name" initialValue={userDataFromDB.displayName || ''}>
+								<Form.Item name="name" label="Name" initialValue={userDataFromDB.name || ''}>
 									<Input value={name} onChange={(n) => setName(n)} type="text" />
 								</Form.Item>
 								<Form.Item
@@ -174,6 +179,8 @@ const DashboardScreen = () => {
 									</Button>
 								</Form.Item>
 							</Form>
+						) : (
+							<Skeleton active />
 						)}
 					</TabPane>
 					<TabPane tab="Password" key="2">
