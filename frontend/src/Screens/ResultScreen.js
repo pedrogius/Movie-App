@@ -85,7 +85,7 @@ const ResultScreen = () => {
 	};
 
 	return (
-		<div className="site-layout-content">
+		<>
 			{data ? (
 				<Row gutter={32} className="main-row">
 					<Col span={18}>
@@ -105,7 +105,7 @@ const ResultScreen = () => {
 							</Col>
 						</Row>
 						<Row gutter={32} className="inner-row">
-							<Col className="poster-col" span={8}>
+							<Col span={8}>
 								<Image preview={false} src={data.posterURLs[500]} className="poster" />
 							</Col>
 							<Col span={16}>
@@ -160,7 +160,7 @@ const ResultScreen = () => {
 			) : (
 				<Skeleton active />
 			)}
-		</div>
+		</>
 	);
 };
 

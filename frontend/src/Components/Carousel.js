@@ -20,7 +20,6 @@ const Carousel = ({ title, data }) => {
 	const history = useHistory();
 
 	const handleAddToWatchList = async (item, e) => {
-		console.log(user);
 		e.stopPropagation();
 		if (user) {
 			const method = watchList.includes(item.id) ? 'remove' : 'add';

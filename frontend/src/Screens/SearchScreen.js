@@ -57,7 +57,7 @@ const SearchScreen = () => {
 		};
 	}, [query, type]);
 	return (
-		<div className="site-layout-content">
+		<>
 			{isLoading && <Spin size="large" />}
 			<Row gutter={[24, 24]}>
 				<Col span={18}>
@@ -80,7 +80,7 @@ const SearchScreen = () => {
 					<Recommended type={type} />
 				</Col>
 			</Row>
-		</div>
+		</>
 	);
 };
 

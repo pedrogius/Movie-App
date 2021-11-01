@@ -85,7 +85,7 @@ const SeriesScreen = ({ match }) => {
 	};
 
 	return (
-		<div className="site-layout-content">
+		<>
 			{data ? (
 				<div>
 					<Row gutter={32} justify="center" align="middle">
@@ -132,7 +132,7 @@ const SeriesScreen = ({ match }) => {
 			) : (
 				<Skeleton active />
 			)}
-		</div>
+		</>
 	);
 };
 

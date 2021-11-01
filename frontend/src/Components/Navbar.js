@@ -48,7 +48,7 @@ const Navbar = () => {
 					marginBottom: '30px',
 				}}
 			>
-				<div className="space-align-container">
+				<div className="nav-container">
 					<Image src="/logo2.png" height="100%" alt="logo" preview={false} />
 					<Select defaultValue={type} onChange={handleSelect} style={{ marginRight: '10px' }}>
 						<Option value="movie">Movies</Option>

@@ -59,8 +59,9 @@ const SideMenu = () => {
 						defaultSelectedKeys={['1']}
 						mode="inline"
 						inlineCollapsed={true}
-						theme="dark"
+						theme="light"
 						style={{ width: 50, borderRadius: '0px 5px 5px 0px' }}
+						id="side-menu"
 					>
 						<Menu.Item
 							key="1"
