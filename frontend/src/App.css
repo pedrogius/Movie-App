@@ -8,7 +8,15 @@
   height: 450px;
 }
 .top-inner-row {
-  height: 50px;
+  height: auto;
+}
+.top-inner-row #result-length {
+  margin-bottom: 0;
+}
+.top-inner-row .result-ratings {
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
 }
 .inner-row {
   height: 350px;
@@ -20,7 +28,23 @@
   display: flex;
   align-items: center;
   height: 70px;
+  justify-content: space-between;
+}
+.nav-container .logo {
+  height: inherit;
+}
+.nav-container .search {
+  display: flex;
   justify-content: center;
+}
+.nav-container .account {
+  width: 110px;
+  display: flex;
+  justify-content: center;
+}
+.nav-container .nav-account-link {
+  color: hsl(216, 33%, 97%);
+  cursor: pointer;
 }
 .ant-tabs-tab {
   flex: 1;
@@ -31,10 +55,12 @@
   display: unset !important;
 }
 .recommended {
-  border: 1px solid hsl(210, 16%, 82%);
   border-radius: 5px;
   padding: 18px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.7), 0 5px 15px rgba(0, 0, 0, 0.1);
+  background-color: white;
+  max-height: 400px;
+  overflow: hidden;
 }
 .centered-spinner {
   display: flex;
@@ -195,6 +221,7 @@
   border-radius: 5px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.7), 0 5px 15px rgba(0, 0, 0, 0.1);
   text-align: center;
+  background-color: white;
 }
 .notification-link:hover {
   cursor: pointer;
@@ -204,8 +231,17 @@
   padding: 40px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.7), 0 5px 15px rgba(0, 0, 0, 0.1);
   border-radius: 5px;
+  background-color: white;
 }
 .dashboard-alert {
   margin-bottom: 10px;
+}
+#trailer-button {
+  background-color: hsla(216, 33%, 97%, 0.5);
+  border: 1px solid hsla(216, 33%, 97%, 0.5);
+}
+#trailer-button:hover {
+  background-color: hsla(216, 33%, 97%, 0.8);
+  border: 1px solid hsla(216, 33%, 97%, 0.8);
 }
 /*# sourceMappingURL=App.css.map */

@@ -26,6 +26,7 @@ const TrailerModal = ({ id }) => {
 					e.stopPropagation();
 					setVisible(true);
 				}}
+				id="trailer-button"
 			>
 				<CaretRightOutlined /> Trailer
 			</Button>

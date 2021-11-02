@@ -31,7 +31,7 @@ function App() {
 					<Layout>
 						<ScrollToTop />
 						<SideMenu />
-						<Content style={{ padding: '10px 100px' }}>
+						<Content style={{ padding: '40px 80px' }}>
 							<ErrorBoundary FallbackComponent={ErrorScreen}>
 								<CustomSwitch>
 									<Route path="/" component={HomeScreen} exact />

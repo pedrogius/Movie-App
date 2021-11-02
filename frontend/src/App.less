@@ -46,7 +46,15 @@
 }
 
 .top-inner-row {
-	height: 50px;
+	height: auto;
+	#result-length {
+		margin-bottom: 0;
+	}
+	.result-ratings {
+		display: flex;
+		justify-content: space-evenly;
+		align-items: center;
+	}
 }
 
 .inner-row {
@@ -63,7 +71,23 @@
 	display: flex;
 	align-items: center;
 	height: 70px;
-	justify-content: center;
+	justify-content: space-between;
+	.logo {
+		height: inherit;
+	}
+	.search {
+		display: flex;
+		justify-content: center;
+	}
+	.account {
+		width: 110px;
+		display: flex;
+		justify-content: center;
+	}
+	.nav-account-link {
+		color: @neutrals-cool-grey-100;
+		cursor: pointer;
+	}
 }
 
 //recommended card
@@ -79,10 +103,12 @@
 }
 
 .recommended {
-	border: 1px solid @neutrals-cool-grey-300;
 	border-radius: @border-radius-medium;
 	padding: 18px;
 	box-shadow: @card-shadow;
+	background-color: white;
+	max-height: 400px;
+	overflow: hidden;
 }
 
 .centered-spinner {
@@ -275,6 +301,7 @@
 	border-radius: @border-radius-medium;
 	box-shadow: @card-shadow;
 	text-align: center;
+	background-color: white;
 }
 
 .notification-link:hover {
@@ -286,8 +313,21 @@
 	padding: 40px;
 	box-shadow: @card-shadow;
 	border-radius: @border-radius-medium;
+	background-color: white;
 }
 
 .dashboard-alert {
 	margin-bottom: 10px;
+}
+
+//trailer button
+
+#trailer-button {
+	background-color: hsla(216, 33%, 97%, 0.5);
+	border: 1px solid hsla(216, 33%, 97%, 0.5);
+}
+
+#trailer-button:hover {
+	background-color: hsla(216, 33%, 97%, 0.8);
+	border: 1px solid hsla(216, 33%, 97%, 0.8);
 }

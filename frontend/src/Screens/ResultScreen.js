@@ -1,8 +1,14 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { useRouteMatch } from 'react-router-dom';
+import { useRouteMatch, useHistory } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import { Skeleton, Row, Col, Button, Image, Divider, Tag, Spin } from 'antd';
-import { CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
+import { Skeleton, Row, Col, Button, Image, Divider, Tag, Spin, notification } from 'antd';
+import {
+	CheckCircleOutlined,
+	CloseCircleOutlined,
+	MinusCircleOutlined,
+	PlusCircleOutlined,
+	StarFilled,
+} from '@ant-design/icons';
 import { CountryContext } from '../Context/CountryContext';
 import { AuthContext } from '../Context/AuthContext';
 import {
@@ -11,25 +17,43 @@ import {
 	checkRecommended,
 	makeOriginal,
 	fetchTomatoMeter,
+	checkWatchList,
+	addToWatchList,
 } from '../Firebase';
 import { minutesToHoursAndMinutes, makeString, capitalize, isEmpty } from '../Utils';
 import Recommended from '../Components/Recommended';
+import TrailerModal from '../Components/TrailerModal';
 
 const ResultScreen = () => {
 	const match = useRouteMatch('/:type/:id');
+	const history = useHistory();
 
 	const [data, setData] = useState(null);
 	const [isRecommended, setIsRecommended] = useState(false);
+	const [isOnWatchList, setIsOnWatchList] = useState(false);
 	const [isOriginal, setIsOriginal] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
+	const [isWatchListLoading, setIsWatchListLoading] = useState(false);
 	const { type, id } = match.params;
 
 	const { country } = useContext(CountryContext);
-	const { isAdmin } = useContext(AuthContext);
+	const { user, isAdmin } = useContext(AuthContext);
 
 	useEffect(() => {
 		setIsLoading(true);
 	}, [country]);
+
+	useEffect(() => {
+		let mounted = true;
+		if (user && mounted) {
+			checkWatchList(user.uid, id)
+				.then((res) => setIsOnWatchList(res))
+				.catch((e) => console.log(e));
+		}
+		return () => {
+			mounted = false;
+		};
+	}, [id, user]);
 
 	useEffect(() => {
 		const fetchData = async (id) => {
@@ -72,6 +96,49 @@ const ResultScreen = () => {
 		console.log(score);
 	};
 
+	const handleAddToWatchList = async () => {
+		if (user) {
+			const item = {
+				title: data.title,
+				id: data.imdbID,
+				year: data.year,
+				poster: data.posterURLs[92],
+			};
+			const method = isOnWatchList ? 'remove' : 'add';
+			try {
+				setIsWatchListLoading(true);
+				await addToWatchList(method, user.uid, item);
+				setIsOnWatchList(!isOnWatchList);
+			} catch (error) {
+				notification.error({
+					message: 'Error',
+					description: 'Something Went Wrong',
+					placement: 'bottomRight',
+				});
+			}
+		} else {
+			notification.warning({
+				message: 'Account Required',
+				description: (
+					<div>
+						Please{' '}
+						<strong className="notification-link" onClick={() => history.push('/login')}>
+							login
+						</strong>{' '}
+						or
+						<strong className="notification-link" onClick={() => history.push('/register')}>
+							{' '}
+							create an account
+						</strong>{' '}
+						to keep a watchlist
+					</div>
+				),
+				placement: 'bottomRight',
+			});
+		}
+		setIsWatchListLoading(false);
+	};
+
 	const isAvailable = (obj) => {
 		if (!isEmpty(obj)) {
 			const results = [];
@@ -90,12 +157,12 @@ const ResultScreen = () => {
 				<Row gutter={32} className="main-row">
 					<Col span={18}>
 						<Row className="top-inner-row">
-							<Col span={24}>
+							<Col span={8}>
 								<h1 style={{ marginBottom: '0px' }}>
 									{data.title} ({data.year}
 									{data.lastAirYear && data.year !== data.lastAirYear && ` - ${data.lastAirYear}`})
 								</h1>
-								<p>
+								<p id="result-length">
 									{data.seasons &&
 										`${data.seasons} ${data.seasons > 1 ? 'seasons' : 'season'} - ${
 											data.episodes
@@ -103,12 +170,38 @@ const ResultScreen = () => {
 									{minutesToHoursAndMinutes(data.runtime || data.episodeRuntimes[0])}
 								</p>
 							</Col>
+							<Col span={16}>
+								<div className="result-ratings">
+									<TrailerModal id={data.video} />
+
+									{isOnWatchList ? (
+										<Button disabled={isWatchListLoading} onClick={handleAddToWatchList}>
+											<MinusCircleOutlined /> Remove from Watchlist
+										</Button>
+									) : (
+										<Button disabled={isWatchListLoading} onClick={handleAddToWatchList}>
+											<PlusCircleOutlined /> Add to Watchlist
+										</Button>
+									)}
+
+									<div className="imdb">
+										<StarFilled style={{ fontSize: '16px', color: 'hsla(50, 100%, 50%, 1)' }} />
+										<strong className="score">{data.imdbRating}</strong>
+									</div>
+
+									<div className="tomato">
+										<img src="/tomatometer.svg" height="16px" alt="" />
+										<strong className="score">{data.tomatoMeter}%</strong>
+									</div>
+								</div>
+							</Col>
 						</Row>
 						<Row gutter={32} className="inner-row">
 							<Col span={8}>
 								<Image preview={false} src={data.posterURLs[500]} className="poster" />
 							</Col>
 							<Col span={16}>
+								<Divider style={{ marginTop: 0 }} />
 								<p>{data.overview}</p>
 								<Divider />
 								<p>
@@ -121,7 +214,7 @@ const ResultScreen = () => {
 									{makeString(data.cast)}
 								</p>
 								<Divider />
-								<p>
+								<div>
 									<strong style={{ marginRight: '12px' }}>Streaming</strong>
 									{isLoading ? (
 										<Spin />
@@ -136,7 +229,7 @@ const ResultScreen = () => {
 											Not Available
 										</Tag>
 									)}
-								</p>
+								</div>
 								{isAdmin && (
 									<>
 										<Divider />
@@ -153,7 +246,7 @@ const ResultScreen = () => {
 						</Row>
 					</Col>
 					<Col span={6}>
-						<h2>What to Watch</h2>
+						<h2 style={{ textAlign: 'center' }}>What to Watch</h2>
 						<Recommended type={type} />
 					</Col>
 				</Row>

@@ -267,6 +267,16 @@ const checkRecommended = async (id, type) => {
 	return;
 };
 
+const checkWatchList = async (uid, id) => {
+	const docRef = doc(db, 'users', uid, 'watchList', id);
+	const docSnap = await getDoc(docRef);
+	if (docSnap.exists()) {
+		return true;
+	} else {
+		return false;
+	}
+};
+
 const fetchSuggestions = async (queryText, type) => {
 	const dbName = type === 'movie' ? 'movies' : 'series';
 	const ref = collection(db, dbName);
@@ -350,6 +360,7 @@ export {
 	fetchTomatoMeter,
 	fetchSuggestions,
 	addToWatchList,
+	checkWatchList,
 	fetchUserWatchList,
 	updateUserProfile,
 	getUserProfile,
