@@ -3,7 +3,7 @@ import { Modal, Button } from 'antd';
 import YouTube from 'react-youtube';
 import { CaretRightOutlined } from '@ant-design/icons';
 
-const TrailerModal = ({ id }) => {
+const TrailerModal = ({ id, type }) => {
 	const [visible, setVisible] = useState(false);
 	const playerRef = useRef(null);
 
@@ -26,7 +26,7 @@ const TrailerModal = ({ id }) => {
 					e.stopPropagation();
 					setVisible(true);
 				}}
-				id="trailer-button"
+				id={type === 'transparent' ? 'trailer-button' : ''}
 			>
 				<CaretRightOutlined /> Trailer
 			</Button>

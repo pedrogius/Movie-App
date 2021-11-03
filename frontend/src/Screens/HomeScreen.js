@@ -26,8 +26,8 @@ const HomeScreen = () => {
 				<Skeleton active />
 			) : (
 				<>
-					<Carousel data={recommendedMovies} title="Recommended Movies" />
-					<Carousel data={recommendedSeries} title="Recommended Series" />
+					<Carousel data={recommendedMovies} title="Recommended Movies" type="movie" />
+					<Carousel data={recommendedSeries} title="Recommended Series" type="series" />
 				</>
 			)}
 		</div>

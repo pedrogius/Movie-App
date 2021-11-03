@@ -209,18 +209,17 @@
 		justify-content: space-between;
 		align-items: center;
 	}
-}
-
-.slide-content {
-	position: absolute;
-	color: @neutrals-cool-grey-100;
-	bottom: 10px;
-	left: 25px;
-	text-shadow: 1px 1px 3px #444;
-	width: 80%;
-	cursor: pointer;
-	.slide-title {
+	.slide-content {
+		position: absolute;
 		color: @neutrals-cool-grey-100;
+		bottom: 10px;
+		left: 25px;
+		text-shadow: 1px 1px 3px #444;
+		width: 80%;
+		cursor: pointer;
+		.slide-title {
+			color: @neutrals-cool-grey-100;
+		}
 	}
 }
 
@@ -330,4 +329,57 @@
 #trailer-button:hover {
 	background-color: hsla(216, 33%, 97%, 0.8);
 	border: 1px solid hsla(216, 33%, 97%, 0.8);
+}
+
+//search result cards
+
+.search-card-container {
+	display: flex;
+	gap: 24px;
+	justify-content: space-between;
+	flex-wrap: wrap;
+	position: relative;
+	.search-card {
+		width: 220px;
+		height: 100%;
+		box-shadow: @card-shadow;
+		border-radius: @border-radius-medium;
+		position: relative;
+		z-index: 3;
+		overflow: hidden;
+		background: linear-gradient(
+			0deg,
+			rgba(0, 0, 0, 0.9) 0%,
+			rgba(0, 0, 0, 0.8) 25%,
+			rgba(0, 0, 0, 0.4) 50%,
+			rgba(0, 0, 0, 0.2) 75%,
+			rgba(0, 0, 0, 0) 100%
+		);
+
+		.search-card-content {
+			height: 100%;
+			width: 100%;
+			position: relative;
+			z-index: 2;
+
+			.search-card-text {
+				position: absolute;
+				z-index: 0;
+				bottom: 0px;
+				color: white;
+				text-shadow: @card-shadow;
+				padding: 12px 24px;
+			}
+		}
+		img {
+			position: relative;
+			z-index: -1;
+			flex-shrink: 0;
+			max-width: 100%;
+			max-height: 100%;
+		}
+		.ant-skeleton {
+			padding: 36px 24px;
+		}
+	}
 }

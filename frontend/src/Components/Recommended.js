@@ -6,7 +6,7 @@ import { fetchRecommended } from '../Firebase';
 const Recommended = ({ type }) => {
 	const [recommendedList, setRecommendedList] = useState(null);
 	const [isLoading, setIsLoading] = useState(true);
-	const [recommendedType, setRecommendedType] = useState('movie');
+	const [recommendedType, setRecommendedType] = useState(type);
 
 	const { TabPane } = Tabs;
 

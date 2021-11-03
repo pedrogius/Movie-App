@@ -13,7 +13,7 @@ import { collection, onSnapshot, query } from 'firebase/firestore';
 
 SwiperCore.use([Navigation, Autoplay]);
 
-const Carousel = ({ title, data }) => {
+const Carousel = ({ title, data, type }) => {
 	const [watchList, setWatchList] = useState(null);
 	const { user } = useContext(AuthContext);
 
@@ -92,7 +92,7 @@ const Carousel = ({ title, data }) => {
 						<SwiperSlide
 							key={item.id}
 							style={{ listStyle: 'none' }}
-							onClick={() => history.push(`/movie/${item.id}`)}
+							onClick={() => history.push(`/${type}/${item.id}`)}
 						>
 							<div className="slide">
 								<Tooltip
@@ -132,7 +132,7 @@ const Carousel = ({ title, data }) => {
 										</div>
 										{item.trailer && (
 											<div className="trailer">
-												<TrailerModal id={item.trailer} />
+												<TrailerModal id={item.trailer} type="transparent" />
 											</div>
 										)}
 									</div>

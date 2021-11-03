@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Col, Row, Spin, Card } from 'antd';
+import { Col, Row, Card, Image } from 'antd';
 import { Link, useRouteMatch } from 'react-router-dom';
 import Recommended from '../Components/Recommended';
+import SkeletonList from '../Components/SkeletonList';
 
 const SearchScreen = () => {
 	const [results, setResults] = useState([]);
@@ -56,25 +57,27 @@ const SearchScreen = () => {
 			mounted = false;
 		};
 	}, [query, type]);
+
 	return (
 		<>
-			{isLoading && <Spin size="large" />}
 			<Row gutter={[24, 24]}>
 				<Col span={18}>
-					{results &&
-						results.map((result) => (
-							<Col span={{ sm: 24, md: 12, lg: 8 }} key={result.imdbID}>
+					{isLoading && <SkeletonList />}
+					<div className="search-card-container">
+						{results &&
+							results.map((result) => (
 								<Link to={`/${type}/${result.imdbID}`}>
-									<Card
-										hoverable
-										style={{ width: '90%' }}
-										cover={<img src={result.Poster} alt={result.Title} />}
-									>
-										{result.Title} ({result.Year})
-									</Card>
+									<div className="search-card" key={result.imdbID}>
+										<img src={result.Poster} alt={result.Title} />
+										<div className="search-card-content">
+											<h3 className="search-card-text">
+												{result.Title} ({result.Year})
+											</h3>
+										</div>
+									</div>
 								</Link>
-							</Col>
-						))}
+							))}
+					</div>
 				</Col>
 				<Col span={6}>
 					<Recommended type={type} />

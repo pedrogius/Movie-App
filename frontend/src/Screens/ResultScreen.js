@@ -109,6 +109,13 @@ const ResultScreen = () => {
 				setIsWatchListLoading(true);
 				await addToWatchList(method, user.uid, item);
 				setIsOnWatchList(!isOnWatchList);
+				notification.success({
+					message: method === 'add' ? 'Added!' : 'Removed!',
+					description: `${data.title} is ${
+						method === 'add' ? 'now on' : 'no longer on'
+					} your watchlist.`,
+					placement: 'bottomRight',
+				});
 			} catch (error) {
 				notification.error({
 					message: 'Error',
@@ -186,12 +193,12 @@ const ResultScreen = () => {
 
 									<div className="imdb">
 										<StarFilled style={{ fontSize: '16px', color: 'hsla(50, 100%, 50%, 1)' }} />
-										<strong className="score">{data.imdbRating}</strong>
+										<strong className="score"> {data.imdbRating}</strong>
 									</div>
 
 									<div className="tomato">
-										<img src="/tomatometer.svg" height="16px" alt="" />
-										<strong className="score">{data.tomatoMeter}%</strong>
+										<img src="/tomatometer.svg" height="16px" alt="tomatoMeter" />
+										<strong className="score"> {data.tomatoMeter}%</strong>
 									</div>
 								</div>
 							</Col>
