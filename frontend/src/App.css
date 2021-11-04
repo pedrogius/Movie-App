@@ -285,4 +285,46 @@
 .search-card-container .search-card .ant-skeleton {
   padding: 36px 24px;
 }
+.result-container .result {
+  display: flex;
+  align-items: center;
+}
+.result-container .result img {
+  height: 230px;
+}
+.result-container .result .result-description {
+  padding: 20px;
+}
+.result-container .result .result-description .result-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+.result-container .result .result-description .result-title .result-score {
+  padding: 10px;
+  margin-right: 30px;
+  text-align: center;
+  align-content: center;
+  border-radius: 5px;
+  color: white;
+  font-size: 20px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.7), 0 5px 15px rgba(0, 0, 0, 0.1);
+  text-shadow: 0 1px 3px hsla(0, 0%, 0%, 0.2);
+}
+.result-container .result .result-description .result-title .good {
+  background-color: green;
+}
+.result-container .result .result-description .result-title .regular {
+  background-color: hsl(36, 77%, 49%);
+}
+.result-container .result .result-description .result-title .bad {
+  background-color: hsl(0, 83%, 62%);
+}
+.result-container .result .result-description .result-buttons {
+  display: flex;
+}
+.result-container .result .result-description .result-buttons .ant-btn {
+  margin-right: 20px;
+  box-shadow: 0 4px 6px hsla(0, 0%, 0%, 0.2);
+}
 /*# sourceMappingURL=App.css.map */

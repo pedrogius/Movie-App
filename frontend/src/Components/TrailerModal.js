@@ -16,6 +16,8 @@ const TrailerModal = ({ id, type }) => {
 		width: '640',
 		playerVars: {
 			autoplay: 1,
+			origin: window.origin.href,
+			host: 'https://www.youtube.com',
 		},
 	};
 

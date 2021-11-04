@@ -150,7 +150,7 @@ const fetchTomatoMeter = async (q, type, year) => {
 };
 
 const fetchFromDB = async (id, type, country) => {
-	const dbName = type === 'movie' ? 'movies' : 'series';
+	const dbName = type === 'movie' ? 'movies' : 'tv';
 	const docRef = doc(db, dbName, id);
 	try {
 		const docSnap = await getDoc(docRef);
@@ -158,7 +158,7 @@ const fetchFromDB = async (id, type, country) => {
 		const options = {
 			method: 'GET',
 			url: 'https://streaming-availability.p.rapidapi.com/get/basic',
-			params: { country, imdb_id: id },
+			params: { country, tmdb_id: `${type}/${id}` },
 			headers: {
 				'x-rapidapi-host': 'streaming-availability.p.rapidapi.com',
 				'x-rapidapi-key': process.env.REACT_APP_RAPIDAPI_KEY,
