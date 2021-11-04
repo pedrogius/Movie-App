@@ -3,7 +3,6 @@ import { Form, Button, Input, notification, Spin, Row } from 'antd';
 import { Link, useHistory } from 'react-router-dom';
 import { register, signInWithGoogle } from '../Firebase';
 import { AuthContext } from '../Context/AuthContext';
-import { parseFirebaseError } from '../Utils';
 import { LockOutlined, UserOutlined } from '@ant-design/icons';
 
 const RegisterScreen = () => {
@@ -43,11 +42,10 @@ const RegisterScreen = () => {
 			setIsLoading(false);
 			setDisabled(false);
 			setFormStatus('error');
-			const { type, message } = parseFirebaseError(e);
-			if (type === 'auth') {
+			if (e.type === 'auth') {
 				notification.error({
 					message: 'Registration Failed',
-					description: message,
+					description: e.message,
 					placement: 'bottomRight',
 				});
 			} else {

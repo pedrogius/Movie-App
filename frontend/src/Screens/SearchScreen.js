@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Col, Row, Card, Image } from 'antd';
+import { Col, Row } from 'antd';
 import { Link, useRouteMatch } from 'react-router-dom';
 import Recommended from '../Components/Recommended';
 import SkeletonList from '../Components/SkeletonList';

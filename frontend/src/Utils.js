@@ -21,10 +21,11 @@ export const capitalize = (str) =>
 		.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
 		.join(' ');
 
-export const parseFirebaseError = (str) => {
-	const err = str.message.split('Error ')[1].slice(1, -2).split('/');
-	return {
-		type: err[0],
-		message: capitalize(err[1].split('-').join(' ')),
-	};
-};
+export class FirebaseError extends Error {
+	constructor(e) {
+		super(e);
+		const err = e.message.split('Error ')[1].slice(1, -2).split('/');
+		this.type = err[0];
+		this.message = capitalize(err[1].split('-').join(' '));
+	}
+}

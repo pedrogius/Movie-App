@@ -2,7 +2,6 @@ import React, { useState, useEffect, useContext } from 'react';
 import { Form, Button, Input, Row, Spin, notification } from 'antd';
 import { Link, useLocation, Redirect, useHistory } from 'react-router-dom';
 import { signIn, signInWithGoogle } from '../Firebase';
-import { parseFirebaseError } from '../Utils';
 import { LockOutlined, UserOutlined } from '@ant-design/icons';
 import { AuthContext } from '../Context/AuthContext';
 
@@ -48,8 +47,7 @@ function LoginScreen() {
 			setRedirectToReferrer(true);
 		} catch (e) {
 			setDisabled(false);
-			const { type } = parseFirebaseError(e);
-			if (type === 'auth') {
+			if (e.message === 'Wrong Password' || 'User Not Found') {
 				notification.error({
 					message: 'Login Failed',
 					description: 'Please Check Your Credentials',
@@ -81,7 +79,6 @@ function LoginScreen() {
 				description: 'Something Went Wrong',
 				top: 100,
 			});
-			console.log(e.message);
 		}
 	};
 

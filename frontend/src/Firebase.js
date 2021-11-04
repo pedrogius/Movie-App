@@ -24,7 +24,7 @@ import {
 	where,
 	deleteDoc,
 } from 'firebase/firestore';
-import { isEmpty } from './Utils';
+import { isEmpty, FirebaseError } from './Utils';
 import { merge } from 'lodash';
 import axios from 'axios';
 
@@ -68,14 +68,14 @@ const signInWithGoogle = async () => {
 			});
 		}
 	} catch (err) {
-		throw new Error(err);
+		throw new FirebaseError(err);
 	}
 };
 const signIn = async (email, password) => {
 	try {
 		await signInWithEmailAndPassword(auth, email, password);
 	} catch (err) {
-		throw new Error(err);
+		throw new FirebaseError(err);
 	}
 };
 const register = async (email, password) => {
@@ -100,7 +100,7 @@ const register = async (email, password) => {
 			});
 		}
 	} catch (err) {
-		throw new Error(err);
+		throw new FirebaseError(err);
 	}
 };
 const resetPassword = async (email) => {
@@ -118,8 +118,12 @@ const logout = () => {
 
 const getUser = async (uid) => {
 	const docRef = doc(db, 'users', uid);
-	const docSnap = await getDoc(docRef);
-	return docSnap.data();
+	try {
+		const docSnap = await getDoc(docRef);
+		return docSnap.data();
+	} catch (err) {
+		throw new FirebaseError(err);
+	}
 };
 
 const fetchTomatoMeter = async (q, type, year) => {
@@ -148,67 +152,71 @@ const fetchTomatoMeter = async (q, type, year) => {
 const fetchFromDB = async (id, type, country) => {
 	const dbName = type === 'movie' ? 'movies' : 'series';
 	const docRef = doc(db, dbName, id);
-	const docSnap = await getDoc(docRef);
+	try {
+		const docSnap = await getDoc(docRef);
 
-	const options = {
-		method: 'GET',
-		url: 'https://streaming-availability.p.rapidapi.com/get/basic',
-		params: { country, imdb_id: id },
-		headers: {
-			'x-rapidapi-host': 'streaming-availability.p.rapidapi.com',
-			'x-rapidapi-key': process.env.REACT_APP_RAPIDAPI_KEY,
-		},
-	};
-
-	if (docSnap.exists()) {
-		const { streamingInfo } = docSnap.data();
-		const availableCountries = {};
-		for (const stream in streamingInfo) {
-			Object.defineProperty(availableCountries, stream, {
-				value: Object.keys(streamingInfo[stream]),
-				enumerable: true,
-			});
-		}
-		const isAvailable = (obj, ctry) => {
-			let countries = [];
-			for (const stream in obj) {
-				countries = [...countries, ...obj[stream]];
-			}
-			if (countries.includes(ctry.toLowerCase())) {
-				//checks if document has streaming information
-				//on query country and last update was less than a week ago
-				// if its an original (owned by streaming service) it will be 180 days instead of a week
-				const week = 1000 * 60 * 60 * 24 * 7;
-				const halfYear = 1000 * 60 * 60 * 24 * 180;
-				const { isOriginal } = docSnap.data();
-				const queryDate = docSnap.data().lastQuery[ctry].toMillis();
-				const isExpired = Date.now() - queryDate < isOriginal ? halfYear : week;
-				return isExpired;
-			} else {
-				return false;
-			}
+		const options = {
+			method: 'GET',
+			url: 'https://streaming-availability.p.rapidapi.com/get/basic',
+			params: { country, imdb_id: id },
+			headers: {
+				'x-rapidapi-host': 'streaming-availability.p.rapidapi.com',
+				'x-rapidapi-key': process.env.REACT_APP_RAPIDAPI_KEY,
+			},
 		};
-		if (isAvailable(availableCountries, country)) {
-			return docSnap.data();
-		} else {
-			const { data } = await axios.request(options);
-			if (isEmpty(data.streamingInfo)) {
+
+		if (docSnap.exists()) {
+			const { streamingInfo } = docSnap.data();
+			const availableCountries = {};
+			for (const stream in streamingInfo) {
+				Object.defineProperty(availableCountries, stream, {
+					value: Object.keys(streamingInfo[stream]),
+					enumerable: true,
+				});
+			}
+			const isAvailable = (obj, ctry) => {
+				let countries = [];
+				for (const stream in obj) {
+					countries = [...countries, ...obj[stream]];
+				}
+				if (countries.includes(ctry.toLowerCase())) {
+					//checks if document has streaming information
+					//on query country and last update was less than a week ago
+					// if its an original (owned by streaming service) it will be 180 days instead of a week
+					const week = 1000 * 60 * 60 * 24 * 7;
+					const halfYear = 1000 * 60 * 60 * 24 * 180;
+					const { isOriginal } = docSnap.data();
+					const queryDate = docSnap.data().lastQuery[ctry].toMillis();
+					const isExpired = Date.now() - queryDate < isOriginal ? halfYear : week;
+					return isExpired;
+				} else {
+					return false;
+				}
+			};
+			if (isAvailable(availableCountries, country)) {
 				return docSnap.data();
 			} else {
-				data.streamingInfo = merge(data.streamingInfo, streamingInfo);
-				data.lastQuery = { ...docSnap.data().lastQuery, [country]: Timestamp.now() };
-				await updateDoc(docRef, data);
-				return data;
+				const { data } = await axios.request(options);
+				if (isEmpty(data.streamingInfo)) {
+					return docSnap.data();
+				} else {
+					data.streamingInfo = merge(data.streamingInfo, streamingInfo);
+					data.lastQuery = { ...docSnap.data().lastQuery, [country]: Timestamp.now() };
+					await updateDoc(docRef, data);
+					return data;
+				}
 			}
+		} else {
+			const { data } = await axios.request(options);
+			const tomatoScore = await fetchTomatoMeter(data.title, type, data.year);
+			data.tomatoMeter = tomatoScore;
+			data.lastQuery = { [country]: Timestamp.now() };
+			data.isOriginal = false;
+			await setDoc(docRef, data);
+			return data;
 		}
-	} else {
-		const { data } = await axios.request(options);
-		const tomatoScore = await fetchTomatoMeter(data.title, type, data.year);
-		data.tomatoMeter = tomatoScore;
-		data.lastQuery = { [country]: Timestamp.now() };
-		data.isOriginal = false;
-		await setDoc(docRef, data);
-		return data;
+	} catch (err) {
+		throw new FirebaseError(err);
 	}
 };
 
@@ -216,33 +224,41 @@ const fetchRecommended = async (type) => {
 	const dbName = type === 'movie' ? 'movies' : 'series';
 	const ref = collection(db, dbName);
 	const q = query(ref, where('isRecommended', '==', true));
-	const querySnapshot = await getDocs(q);
-	const arr = [];
-	querySnapshot.forEach((doc) => {
-		const data = doc.data();
-		arr.push({
-			title: data.title,
-			id: data.imdbID,
-			image: data.backdropURLs[780],
-			year: data.year,
-			trailer: data.video,
-			tomatoMeter: data.tomatoMeter,
-			imdbScore: data.imdbRating,
+	try {
+		const querySnapshot = await getDocs(q);
+		const arr = [];
+		querySnapshot.forEach((doc) => {
+			const data = doc.data();
+			arr.push({
+				title: data.title,
+				id: data.imdbID,
+				image: data.backdropURLs[780],
+				year: data.year,
+				trailer: data.video,
+				tomatoMeter: data.tomatoMeter,
+				imdbScore: data.imdbRating,
+			});
 		});
-	});
-	return arr;
+		return arr;
+	} catch (err) {
+		throw new FirebaseError(err);
+	}
 };
 
 const addToRecommended = async (id, type, bool) => {
 	const dbName = type === 'movie' ? 'movies' : 'series';
 	const docRef = doc(db, dbName, id);
-	const docSnap = await getDoc(docRef);
-	if (docSnap.data().backdropURLs[300]) {
-		await updateDoc(docRef, {
-			isRecommended: bool,
-		});
-	} else {
-		console.error('No backdrop');
+	try {
+		const docSnap = await getDoc(docRef);
+		if (docSnap.data().backdropURLs[300]) {
+			await updateDoc(docRef, {
+				isRecommended: bool,
+			});
+		} else {
+			console.error('No backdrop');
+		}
+	} catch (e) {
+		throw new FirebaseError(e);
 	}
 };
 
@@ -328,7 +344,7 @@ const updateUserProfile = async (user, data) => {
 	try {
 		await updateDoc(docRef, data);
 	} catch (e) {
-		throw new Error(e);
+		throw new FirebaseError(e);
 	}
 };
 
@@ -339,7 +355,7 @@ const updateUserPassword = async (email, oldPassword, newPassword) => {
 		await reauthenticateWithCredential(user, credential);
 		await updatePassword(user, newPassword);
 	} catch (error) {
-		throw new Error(error);
+		throw new FirebaseError(error);
 	}
 };
 

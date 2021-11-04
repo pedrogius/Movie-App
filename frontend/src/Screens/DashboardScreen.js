@@ -3,7 +3,6 @@ import { Button, Row, Form, Input, Select, notification, Spin, Tabs, Skeleton, A
 import { AuthContext } from '../Context/AuthContext';
 import { CountryContext } from '../Context/CountryContext';
 import { updateUserProfile, updateUserPassword, logout, db } from '../Firebase';
-import { parseFirebaseError } from '../Utils';
 import { LockOutlined } from '@ant-design/icons';
 import { doc, onSnapshot } from 'firebase/firestore';
 
@@ -70,10 +69,9 @@ const DashboardScreen = () => {
 				placement: 'bottomRight',
 			});
 		} catch (e) {
-			const { message } = parseFirebaseError(e);
 			notification.error({
 				message: 'Something Went Wrong',
-				description: message,
+				description: e.message,
 				placement: 'bottomRight',
 			});
 		}
@@ -94,10 +92,9 @@ const DashboardScreen = () => {
 			form.resetFields();
 		} catch (e) {
 			setFormStatus('error');
-			const { message } = parseFirebaseError(e);
 			notification.error({
 				message: 'Password Update Failed',
-				description: message,
+				description: e.message,
 				placement: 'bottomRight',
 			});
 		}
