@@ -21,6 +21,10 @@
 .inner-row {
   height: 350px;
 }
+.inner-row .admin-buttons {
+  display: flex;
+  justify-content: space-around;
+}
 .poster {
   max-width: 100%;
 }
@@ -61,6 +65,19 @@
   background-color: white;
   max-height: 400px;
   overflow: hidden;
+}
+.recommended .recommended-score {
+  background-color: green;
+  padding: 2px 5px;
+  border-radius: 5px;
+  color: white;
+  margin-right: 5px;
+  box-shadow: 0 1px 3px hsla(0, 0%, 0%, 0.2);
+}
+.recommended .recommended-title {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .centered-spinner {
   display: flex;
@@ -118,7 +135,7 @@
   padding-bottom: 4px;
 }
 .slide {
-  height: 200px;
+  width: 300px;
   overflow: hidden;
   position: relative;
   background: linear-gradient(0deg, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.8) 25%, rgba(0, 0, 0, 0.4) 50%, rgba(0, 0, 0, 0.2) 75%, rgba(0, 0, 0, 0) 100%);
@@ -244,56 +261,15 @@
   background-color: hsla(216, 33%, 97%, 0.8);
   border: 1px solid hsla(216, 33%, 97%, 0.8);
 }
-.search-card-container {
-  display: flex;
-  gap: 24px;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  position: relative;
-}
-.search-card-container .search-card {
-  width: 220px;
-  height: 100%;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.7), 0 5px 15px rgba(0, 0, 0, 0.1);
-  border-radius: 5px;
-  position: relative;
-  z-index: 3;
-  overflow: hidden;
-  background: linear-gradient(0deg, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.8) 25%, rgba(0, 0, 0, 0.4) 50%, rgba(0, 0, 0, 0.2) 75%, rgba(0, 0, 0, 0) 100%);
-}
-.search-card-container .search-card .search-card-content {
-  height: 100%;
-  width: 100%;
-  position: relative;
-  z-index: 2;
-}
-.search-card-container .search-card .search-card-content .search-card-text {
-  position: absolute;
-  z-index: 0;
-  bottom: 0px;
-  color: white;
-  text-shadow: 0 4px 6px rgba(0, 0, 0, 0.7), 0 5px 15px rgba(0, 0, 0, 0.1);
-  padding: 12px 24px;
-}
-.search-card-container .search-card img {
-  position: relative;
-  z-index: -1;
-  flex-shrink: 0;
-  max-width: 100%;
-  max-height: 100%;
-}
-.search-card-container .search-card .ant-skeleton {
-  padding: 36px 24px;
-}
 .result-container .result {
   display: flex;
-  align-items: center;
+  align-items: top;
 }
 .result-container .result img {
-  height: 230px;
+  height: 200px;
 }
 .result-container .result .result-description {
-  padding: 20px;
+  padding: 0px 20px;
 }
 .result-container .result .result-description .result-title {
   display: flex;
@@ -303,6 +279,7 @@
 .result-container .result .result-description .result-title .result-score {
   padding: 10px;
   margin-right: 30px;
+  margin-left: 10px;
   text-align: center;
   align-content: center;
   border-radius: 5px;
@@ -322,9 +299,18 @@
 }
 .result-container .result .result-description .result-buttons {
   display: flex;
+  margin-top: 10px;
 }
 .result-container .result .result-description .result-buttons .ant-btn {
   margin-right: 20px;
   box-shadow: 0 4px 6px hsla(0, 0%, 0%, 0.2);
+}
+.text {
+  display: inline;
+  width: 100%;
+}
+.read-or-hide {
+  color: hsl(211, 10%, 53%);
+  cursor: pointer;
 }
 /*# sourceMappingURL=App.css.map */

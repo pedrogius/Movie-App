@@ -4,7 +4,7 @@ import { useHistory, withRouter, useRouteMatch, Link } from 'react-router-dom';
 import Autosuggest from 'react-autosuggest';
 import { useDebounce } from 'use-debounce';
 import { fetchSuggestions, logout } from '../Firebase';
-import { capitalize } from '../Utils';
+import { capitalize } from '../Utils/Utils';
 import { DownOutlined, LogoutOutlined, SearchOutlined, UserOutlined } from '@ant-design/icons';
 import { AuthContext } from '../Context/AuthContext';
 
@@ -66,7 +66,7 @@ const Navbar = () => {
 					<div className="search">
 						<Select defaultValue={type} onChange={handleSelect} style={{ marginRight: '10px' }}>
 							<Option value="movie">Movies</Option>
-							<Option value="series">Series</Option>
+							<Option value="tv">Series</Option>
 						</Select>
 						<Autosuggest
 							suggestions={suggestions}

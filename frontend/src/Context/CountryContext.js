@@ -8,11 +8,16 @@ export const CountryProvider = ({ children }) => {
 	const getCountry = async () => {
 		if (!window.localStorage.getItem('userCountry')) {
 			try {
-				const res = await axios.get('localhost:5000/getip');
-				setCountry(res.data);
-				window.localStorage.setItem('userCountry', res.data);
+				const res = await axios.get('http://localhost:5000/getip');
+				if (res.data) {
+					setCountry(res.data);
+					window.localStorage.setItem('userCountry', res.data);
+				} else {
+					setCountry('US');
+					window.localStorage.setItem('userCountry', 'US');
+				}
 			} catch (e) {
-				setCountry('us');
+				setCountry('US');
 				console.log(e);
 			}
 		}

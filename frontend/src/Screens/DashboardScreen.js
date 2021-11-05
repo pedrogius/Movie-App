@@ -5,6 +5,8 @@ import { CountryContext } from '../Context/CountryContext';
 import { updateUserProfile, updateUserPassword, logout, db } from '../Firebase';
 import { LockOutlined } from '@ant-design/icons';
 import { doc, onSnapshot } from 'firebase/firestore';
+import { getName } from 'country-list';
+import { countries } from '../Utils/Countries';
 
 const DashboardScreen = () => {
 	const [userDataFromDB, setUserDataFromDB] = useState(null);
@@ -132,8 +134,13 @@ const DashboardScreen = () => {
 									initialValue={userDataFromDB.country || country}
 								>
 									<Select value={selectedCountry} onChange={(c) => setSelectedCountry(c)}>
-										<Option value="AR">Argentina</Option>
-										<Option value="US">United States</Option>
+										{countries.sort().map((ctry) => {
+											return (
+												<Option value={ctry.toUpperCase()} key={ctry}>
+													{getName(ctry)}
+												</Option>
+											);
+										})}
 									</Select>
 								</Form.Item>
 								<Form.Item

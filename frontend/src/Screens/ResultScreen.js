@@ -20,9 +20,10 @@ import {
 	checkWatchList,
 	addToWatchList,
 } from '../Firebase';
-import { minutesToHoursAndMinutes, makeString, capitalize, isEmpty } from '../Utils';
+import { minutesToHoursAndMinutes, makeString, isEmpty, formatStream } from '../Utils/Utils';
 import Recommended from '../Components/Recommended';
 import TrailerModal from '../Components/TrailerModal';
+import ReadMore from '../Components/ReadMore';
 
 const ResultScreen = () => {
 	const match = useRouteMatch('/:type/:id');
@@ -208,27 +209,28 @@ const ResultScreen = () => {
 								<Image preview={false} src={data.posterURLs[500]} className="poster" />
 							</Col>
 							<Col span={16}>
-								<Divider style={{ marginTop: 0 }} />
-								<p>{data.overview}</p>
-								<Divider />
-								<p>
-									<strong>{type === 'series' ? 'Created by  ' : 'Directed by  '}</strong>
-									{makeString(data.significants)}
-								</p>
-								<Divider />
-								<p>
-									<strong>Stars </strong>
-									{makeString(data.cast)}
-								</p>
-								<Divider />
+								<Divider orientation="left" style={{ marginTop: 0 }}>
+									<strong>Overview</strong>
+								</Divider>
+								<ReadMore>{data.overview}</ReadMore>
+								<Divider orientation="left">
+									<strong>{type === 'tv' ? 'Created by  ' : 'Directed by  '}</strong>
+								</Divider>
+								<p>{makeString(data.significants)}</p>
+								<Divider orientation="left">
+									<strong>Stars</strong>
+								</Divider>
+								<p>{makeString(data.cast)}</p>
+								<Divider orientation="left">
+									<strong>Streaming</strong>
+								</Divider>
 								<div>
-									<strong style={{ marginRight: '12px' }}>Streaming</strong>
 									{isLoading ? (
 										<Spin />
 									) : isAvailable(data.streamingInfo) ? (
 										isAvailable(data.streamingInfo).map((stream) => (
 											<Tag key={stream} color="success" icon={<CheckCircleOutlined />}>
-												{capitalize(stream)}
+												{formatStream(stream)}
 											</Tag>
 										))
 									) : (
@@ -240,13 +242,15 @@ const ResultScreen = () => {
 								{isAdmin && (
 									<>
 										<Divider />
-										<Button onClick={handleAddToRecommended} style={{ marginRight: '10px' }}>
-											{isRecommended ? 'Remove from Recommended' : 'Add to Recommended'}
-										</Button>
-										<Button onClick={handleMakeOriginal}>
-											{isOriginal ? 'Remove from Originals' : 'Add to Originals'}
-										</Button>
-										<Button onClick={handleTomatoScore}>Fetch TomatoMeter</Button>
+										<div className="admin-buttons">
+											<Button onClick={handleAddToRecommended}>
+												{isRecommended ? 'Remove from Recommended' : 'Add to Recommended'}
+											</Button>
+											<Button onClick={handleMakeOriginal}>
+												{isOriginal ? 'Remove from Originals' : 'Add to Originals'}
+											</Button>
+											<Button onClick={handleTomatoScore}>Fetch TomatoMeter</Button>
+										</div>
 									</>
 								)}
 							</Col>

@@ -8,8 +8,10 @@ import {
 	MenuFoldOutlined,
 } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
+import { getName } from 'country-list';
 import { CountryContext } from '../Context/CountryContext';
 import { AuthContext } from '../Context/AuthContext';
+import { countries } from '../Utils/Countries';
 
 const { Option } = Select;
 
@@ -49,8 +51,13 @@ const SideMenu = () => {
 						style={{ width: 120 }}
 						onChange={(value) => setModalCountry(value)}
 					>
-						<Option value="AR">Argentina</Option>
-						<Option value="US">United States</Option>
+						{countries.sort().map((ctry) => {
+							return (
+								<Option value={ctry.toUpperCase()} key={ctry}>
+									{getName(ctry)}
+								</Option>
+							);
+						})}
 					</Select>
 				</Modal>
 				<div style={{ width: 50 }}>

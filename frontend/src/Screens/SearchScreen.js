@@ -4,23 +4,24 @@ import { Button, Col, Divider, Row } from 'antd';
 import { Link, useRouteMatch } from 'react-router-dom';
 import Recommended from '../Components/Recommended';
 import SkeletonList from '../Components/SkeletonList';
-import { genreIDsToName } from '../Utils';
+import ReadMore from '../Components/ReadMore';
+import { genreIDsToName } from '../Utils/Genres';
 
-const SearchScreen = () => {
+const SearchScreen = ({ match }) => {
 	const [results, setResults] = useState([]);
 	const [isLoading, setIsLoading] = useState(false);
-	const [type, setType] = useState(null);
+	const [type, setType] = useState(match.path.split('/')[2] || 'movie');
 	const [query, setQuery] = useState('');
 
-	const match = useRouteMatch('/search/:searchType/:searchTerm');
+	const routeMatch = useRouteMatch('/search/:searchType/:searchTerm');
 
 	useEffect(() => {
-		if (match) {
-			const { searchTerm, searchType } = match.params;
+		if (routeMatch) {
+			const { searchTerm, searchType } = routeMatch.params;
 			setType(searchType);
 			setQuery(searchTerm);
 		}
-	}, [match]);
+	}, [routeMatch]);
 
 	useEffect(() => {
 		setResults([]);
@@ -28,7 +29,7 @@ const SearchScreen = () => {
 		const search = (value) => {
 			const options = {
 				method: 'GET',
-				url: `https://api.themoviedb.org/3/search/movie`,
+				url: `https://api.themoviedb.org/3/search/${type}`,
 				params: {
 					api_key: process.env.REACT_APP_TMDB_KEY,
 					query: value,
@@ -41,9 +42,8 @@ const SearchScreen = () => {
 					if (mounted) {
 						const { data } = response;
 						const filteredResults = data.results.filter((result) => {
-							return result.poster_path && result.popularity > 25;
+							return result.poster_path && result.popularity > 10 && result.genre_ids.length;
 						});
-						console.log(filteredResults);
 						setResults(filteredResults);
 						setIsLoading(false);
 					}
@@ -75,14 +75,18 @@ const SearchScreen = () => {
 										<Link to={`/${type}/${result.id}`}>
 											<img
 												src={`https://image.tmdb.org/t/p/original/${result.poster_path}`}
-												alt={result.title}
+												alt={type === 'movie' ? result.title : result.name}
 											/>
 										</Link>
 										<div className="result-description">
 											<div className="result-title">
 												<Link to={`/${type}/${result.id}`}>
 													<h2>
-														{result.title} ({result.release_date.split('-')[0]})
+														{type === 'movie' ? result.title : result.name} (
+														{type === 'movie'
+															? result.release_date?.split('-')[0]
+															: result.first_air_date?.split('-')[0]}
+														)
 													</h2>
 												</Link>
 												<div
@@ -98,7 +102,7 @@ const SearchScreen = () => {
 												</div>
 											</div>
 											<h3>{genreIDsToName(result.genre_ids)}</h3>
-											<p>{result.overview}</p>
+											<ReadMore>{result.overview}</ReadMore>
 											<div className="result-buttons" style={{}}>
 												<Link to={`/${type}/${result.id}`}>
 													<Button type="primary">Streaming Availability</Button>
@@ -108,7 +112,7 @@ const SearchScreen = () => {
 											</div>
 										</div>
 									</div>
-									<Divider style={{ marginTop: '0px', marginBottom: '0px' }} />
+									<Divider style={{}} />
 								</div>
 							))}
 						</div>

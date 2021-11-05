@@ -3,7 +3,7 @@ import { Form, Button, Input, notification, Spin, Row } from 'antd';
 import { Link, useHistory } from 'react-router-dom';
 import { register, signInWithGoogle } from '../Firebase';
 import { AuthContext } from '../Context/AuthContext';
-import { LockOutlined, UserOutlined } from '@ant-design/icons';
+import { GoogleOutlined, LockOutlined, UserOutlined } from '@ant-design/icons';
 
 const RegisterScreen = () => {
 	const [email, setEmail] = useState('');
@@ -141,7 +141,10 @@ const RegisterScreen = () => {
 						</Button>
 					</Form.Item>
 				</Form>
-				<Button onClick={signInWithGoogle}>Login with Google</Button>
+				<Button onClick={signInWithGoogle}>
+					<GoogleOutlined />
+					Login with Google
+				</Button>
 				<div>
 					Already have an account? <Link to="/login">Login</Link> now.
 				</div>

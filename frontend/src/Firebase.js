@@ -24,7 +24,7 @@ import {
 	where,
 	deleteDoc,
 } from 'firebase/firestore';
-import { isEmpty, FirebaseError } from './Utils';
+import { isEmpty, FirebaseError } from './Utils/Utils';
 import { merge } from 'lodash';
 import axios from 'axios';
 
@@ -127,30 +127,34 @@ const getUser = async (uid) => {
 };
 
 const fetchTomatoMeter = async (q, type, year) => {
-	const dbName = type === 'series' ? 'tvSeries' : 'movies';
-	const queryYear = type === 'series' ? 'startYear' : 'year';
+	const dbName = type === 'tv' ? 'tvSeries' : 'movies';
+	const queryYear = type === 'tv' ? 'startYear' : 'year';
 	const options = {
 		method: 'GET',
 		url: 'https://www.rottentomatoes.com/api/private/v2.0/search/',
-		params: { q, limit: 3 },
+		params: { q, limit: 10 },
 	};
-	const { data } = await axios.request(options);
-	if (data[dbName].length === 1) {
-		return data[dbName][0].meterScore;
-	} else if (data[dbName].length > 1) {
-		const item = data[dbName].filter((x) => x[queryYear] === year);
-		if (item[0].meterScore) {
-			return item[0].meterScore;
+	try {
+		const { data } = await axios.request(options);
+		if (data[dbName].length === 1) {
+			return data[dbName][0].meterScore;
+		} else if (data[dbName].length > 1) {
+			const item = data[dbName].filter((x) => x[queryYear] === year);
+			if (item[0].meterScore) {
+				return item[0].meterScore;
+			} else {
+				return 0;
+			}
 		} else {
 			return 0;
 		}
-	} else {
-		return 0;
+	} catch (e) {
+		throw new Error(e);
 	}
 };
 
 const fetchFromDB = async (id, type, country) => {
-	const dbName = type === 'movie' ? 'movies' : 'tv';
+	const dbName = type === 'movie' ? 'movies' : 'series';
 	const docRef = doc(db, dbName, id);
 	try {
 		const docSnap = await getDoc(docRef);
@@ -216,7 +220,7 @@ const fetchFromDB = async (id, type, country) => {
 			return data;
 		}
 	} catch (err) {
-		throw new FirebaseError(err);
+		throw new Error(err);
 	}
 };
 
@@ -231,12 +235,12 @@ const fetchRecommended = async (type) => {
 			const data = doc.data();
 			arr.push({
 				title: data.title,
-				id: data.imdbID,
+				id: data.tmdbID,
 				image: data.backdropURLs[780],
 				year: data.year,
 				trailer: data.video,
 				tomatoMeter: data.tomatoMeter,
-				imdbScore: data.imdbRating,
+				tmdbScore: data.tmdbRating,
 			});
 		});
 		return arr;

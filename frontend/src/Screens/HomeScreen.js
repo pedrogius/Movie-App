@@ -27,7 +27,7 @@ const HomeScreen = () => {
 			) : (
 				<>
 					<Carousel data={recommendedMovies} title="Recommended Movies" type="movie" />
-					<Carousel data={recommendedSeries} title="Recommended Series" type="series" />
+					<Carousel data={recommendedSeries} title="Recommended Series" type="tv" />
 				</>
 			)}
 		</div>

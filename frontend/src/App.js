@@ -31,7 +31,7 @@ function App() {
 					<Layout>
 						<ScrollToTop />
 						<SideMenu />
-						<Content style={{ padding: '40px 80px' }}>
+						<Content style={{ padding: '40px 80px', minHeight: '100vh' }}>
 							<ErrorBoundary FallbackComponent={ErrorScreen}>
 								<CustomSwitch>
 									<Route path="/" component={HomeScreen} exact />
@@ -42,11 +42,11 @@ function App() {
 									</PrivateRoute>
 									<Route path="/reset" component={ResetPasswordScreen} exact />
 									<Route
-										path={['/search/movie/:searchTerm', '/search/series/:searchTerm']}
+										path={['/search/movie/:searchTerm', '/search/tv/:searchTerm']}
 										component={SearchScreen}
 										exact
 									/>
-									<Route path={['/movie/:id', '/series/:id']} component={ResultScreen} exact />
+									<Route path={['/movie/:id', '/tv/:id']} component={ResultScreen} exact />
 								</CustomSwitch>
 							</ErrorBoundary>
 						</Content>

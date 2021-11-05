@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import { Form, Button, Input, Row, Spin, notification } from 'antd';
 import { Link, useLocation, Redirect, useHistory } from 'react-router-dom';
 import { signIn, signInWithGoogle } from '../Firebase';
-import { LockOutlined, UserOutlined } from '@ant-design/icons';
+import { GoogleOutlined, LockOutlined, UserOutlined } from '@ant-design/icons';
 import { AuthContext } from '../Context/AuthContext';
 
 function LoginScreen() {
@@ -155,7 +155,10 @@ function LoginScreen() {
 						</Button>
 					</Form.Item>
 				</Form>
-				<Button onClick={handleSignInWithGoogle}>Login with Google</Button>
+				<Button onClick={handleSignInWithGoogle}>
+					<GoogleOutlined />
+					Login with Google
+				</Button>
 				<div>
 					<Link to="/reset">Forgot Password</Link>
 				</div>
